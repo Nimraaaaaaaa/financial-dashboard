@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Nerve Center</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--bg2:#161b27;--bg3:#1c2333;--bg4:#222d40;
+  --bdr:rgba(255,255,255,0.07);--bdr2:rgba(255,255,255,0.12);
+  --t1:#f0f4ff;--t2:#8b95a9;--t3:#7a8699;
+  --blue:#4f8ef7;--blue-d:rgba(79,142,247,0.1);--blue-b:rgba(79,142,247,0.25);
+  --green:#34d399;--green-d:rgba(52,211,153,0.1);
+  --amber:#f59e0b;--amber-d:rgba(245,158,11,0.1);
+  --red:#f87171;--red-d:rgba(248,113,113,0.1);
+  --purple:#a78bfa;--purple-d:rgba(167,139,250,0.1);
+  --sans:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono','Courier New',monospace;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--sans);color:var(--t1);display:flex;flex-direction:column;height:100vh;font-size:13px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:48px;background:var(--bg2);border-bottom:1px solid var(--bdr);flex-shrink:0;z-index:100;}
+.logo{font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--t1)}
+.topbar-center{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--t1)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.icon-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--bdr2);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:14px;}
+.live-pill{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--green);background:var(--green-d);border:1px solid rgba(52,211,153,0.2);border-radius:20px;padding:3px 10px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.layout{display:flex;flex:1;overflow:hidden}
+.sidebar{width:190px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--bdr);padding:8px 0 20px;display:flex;flex-direction:column;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:12.5px;color:var(--t2);cursor:pointer;border-left:2px solid transparent;transition:all 0.12s;user-select:none;font-weight:400;}
+.nav-item:hover{background:rgba(255,255,255,0.03);color:var(--t1)}
+.nav-item.active{color:var(--blue);background:var(--blue-d);border-left-color:var(--blue);font-weight:500}
+.nav-icon{font-size:14px;flex-shrink:0;width:16px;text-align:center}
+.nav-badge{margin-left:auto;font-size:9.5px;font-weight:700;border-radius:10px;padding:2px 6px;min-width:18px;text-align:center;background:rgba(248,113,113,0.2);color:var(--red);}
+.nav-badge.amber{background:rgba(245,158,11,0.2);color:var(--amber)}
+.nav-divider{height:1px;background:var(--bdr);margin:8px 0}
+.nav-bottom{margin-top:auto;padding-top:8px}
+.main{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;background:var(--bg)}
+.main::-webkit-scrollbar{width:4px}
+.main::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:2px}
+.section{display:none;flex-direction:column;gap:14px}
+.section.active{display:flex}
+.page-header{display:flex;align-items:center;justify-content:space-between}
+.page-title-big{font-size:18px;font-weight:600;color:var(--t1)}
+.page-sub{font-size:11px;color:var(--t3);margin-top:1px}
+.last-updated{font-size:11px;color:var(--t3);display:flex;align-items:center;gap:5px}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.kcard{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;transition:border-color 0.15s;}
+.kcard:hover{border-color:var(--bdr2)}
+.kcard-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.ki-green{background:var(--green-d);color:var(--green)}
+.ki-blue{background:var(--blue-d);color:var(--blue)}
+.ki-amber{background:var(--amber-d);color:var(--amber)}
+.ki-red{background:var(--red-d);color:var(--red)}
+.ki-purple{background:var(--purple-d);color:var(--purple)}
+.kcard-body{flex:1;min-width:0}
+.kcard-label{font-size:10px;color:var(--t3);font-weight:500;letter-spacing:.04em;margin-bottom:4px}
+.kcard-value{font-size:20px;font-weight:700;font-family:var(--mono);color:var(--t1);margin-bottom:4px;line-height:1}
+.kcard-delta{font-size:11px;display:flex;align-items:center;gap:3px}
+.delta-up{color:var(--green)} .delta-dn{color:var(--red)} .delta-nt{color:var(--t3)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.panel{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.panel-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);display:flex;align-items:center;gap:6px}
+.panel-title-icon{font-size:12px}
+.panel-badge{font-size:10px;padding:2px 8px;border-radius:5px;font-weight:600}
+.pb-red{background:var(--red-d);color:var(--red)}
+.pb-amber{background:var(--amber-d);color:var(--amber)}
+.pb-green{background:var(--green-d);color:var(--green)}
+.pb-blue{background:var(--blue-d);color:var(--blue)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);text-align:left;padding:4px 8px;border-bottom:1px solid var(--bdr);white-space:nowrap}
+td{padding:8px 8px;border-bottom:1px solid rgba(255,255,255,0.025);color:var(--t2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.015)}
+.td-s{font-weight:500;color:var(--t1)}
+.td-m{font-family:var(--mono);font-size:11.5px}
+.td-g{color:var(--green)}
+.td-r{color:var(--red)}
+.td-a{color:var(--amber)}
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:.03em}
+.b-paid{background:var(--green-d);color:var(--green)}
+.b-unpaid{background:var(--amber-d);color:var(--amber)}
+.b-overdue{background:var(--red-d);color:var(--red)}
+.b-fire{background:rgba(248,113,113,0.2);color:#ff6b6b;border:1px solid rgba(248,113,113,0.3)}
+.b-review{background:rgba(245,158,11,0.15);color:var(--amber);border:1px solid rgba(245,158,11,0.3)}
+.b-increase{background:rgba(52,211,153,0.12);color:var(--green);border:1px solid rgba(52,211,153,0.25)}
+.b-optimal{background:rgba(79,142,247,0.12);color:var(--blue);border:1px solid rgba(79,142,247,0.25)}
+.b-overloaded{background:rgba(248,113,113,0.15);color:var(--red);border:1px solid rgba(248,113,113,0.3)}
+.b-underutil{background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.25)}
+.bar-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.025);font-size:12px}
+.bar-row:last-child{border-bottom:none}
+.bar-name{width:80px;color:var(--t2);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{flex:1;height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.4s ease}
+.bf-green{background:linear-gradient(90deg,#22c55e,#34d399)}
+.bf-amber{background:linear-gradient(90deg,#d97706,#f59e0b)}
+.bf-red{background:linear-gradient(90deg,#dc2626,#f87171)}
+.bf-blue{background:linear-gradient(90deg,#2563eb,#4f8ef7)}
+.bar-val{width:44px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--t1);flex-shrink:0}
+.act-btn{font-size:10px;font-weight:600;padding:3px 9px;border-radius:5px;border:none;cursor:pointer;font-family:var(--sans)}
+.act-fire{background:rgba(248,113,113,0.2);color:var(--red)}
+.act-review{background:rgba(245,158,11,0.15);color:var(--amber)}
+.act-increase{background:rgba(52,211,153,0.12);color:var(--green)}
+.act-follow{background:rgba(79,142,247,0.12);color:var(--blue)}
+.leak-total{display:flex;align-items:center;justify-content:space-between;padding:10px 0 2px;border-top:1px solid var(--bdr);margin-top:8px;font-weight:600}
+.leak-amount{font-size:20px;font-family:var(--mono);color:var(--red)}
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.alert-item:last-child{border-bottom:none}
+.alert-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.ad-r{background:var(--red)} .ad-a{background:var(--amber)} .ad-g{background:var(--green)}
+.alert-text{font-size:12px;color:var(--t2);line-height:1.5}
+.alert-text strong{color:var(--t1);font-weight:500}
+.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;overflow:hidden}
+.stat-lbl{font-size:10px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);margin-bottom:5px}
+.stat-val{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--t1)}
+.stat-delta{font-size:11px;margin-top:3px}
+.week-tabs{display:flex;background:var(--bg3);border-radius:7px;padding:2px;gap:2px}
+.wtab{font-size:11.5px;padding:4px 12px;border-radius:5px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-family:var(--sans);font-weight:500;transition:all .12s}
+.wtab:hover{color:var(--t2)}
+.wtab.active{background:var(--bg4);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,0.3)}
+.section-note{font-size:11px;color:var(--t3);padding:8px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--bdr);border-radius:6px;display:flex;align-items:center;gap:6px}
+.util-bar{flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.util-fill{height:100%;border-radius:3px}
+.sheet-status{font-size:11px;padding:4px 10px;border-radius:5px;background:var(--amber-d);color:var(--amber);border:1px solid rgba(245,158,11,0.3)}
+.sheet-status.connected{background:var(--green-d);color:var(--green);border-color:rgba(52,211,153,0.3)}
+</style>
+</head>
+<body>
+ 
+<div class="topbar">
+  <div class="logo">⚡ Financial Nerve Center</div>
+  <div class="topbar-center" id="page-heading">Executive Overview</div>
+  <div class="topbar-right">
+    <div id="sheet-status" class="sheet-status">⟳ Connecting...</div>
+    <div class="week-tabs">
+      <button class="wtab" onclick="setWeek('Week 2',this)">Week 2</button>
+      <button class="wtab" onclick="setWeek('Week 3',this)">Week 3</button>
+      <button class="wtab active" onclick="setWeek('Week 4',this)">Week 4</button>
+    </div>
+    <div class="live-pill"><div class="live-dot"></div>Live</div>
+    <div class="icon-btn" title="Refresh" onclick="fetchSheet()">↻</div>
+  </div>
+</div>
+ 
+<div class="layout">
+  <div class="sidebar">
+    <div class="nav-item active" onclick="goTo('overview',this,'Executive Overview')">
+      <span class="nav-icon">▦</span> Executive Overview
+    </div>
+    <div class="nav-item" onclick="goTo('profitability',this,'Client Profitability')">
+      <span class="nav-icon">◈</span> Client Profitability
+    </div>
+    <div class="nav-item" onclick="goTo('action',this,'Clients to Action')">
+      <span class="nav-icon">⚑</span> Clients to Action
+      <span class="nav-badge" id="nb-action">0</span>
+    </div>
+    <div class="nav-item" onclick="goTo('team',this,'Team Utilization')">
+      <span class="nav-icon">⊕</span> Team Utilization
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-item" onclick="goTo('leakage',this,'Profit Leakages')">
+      <span class="nav-icon">◫</span> Profit Leakages
+    </div>
+    <div class="nav-item" onclick="goTo('invoices',this,'Overdue Invoices')">
+      <span class="nav-icon">◻</span> Overdue Invoices
+      <span class="nav-badge" id="nb-inv">0</span>
+    </div>
+    <div class="nav-item" onclick="goTo('cashflow',this,'Cash Flow')">
+      <span class="nav-icon">→</span> Cash Flow
+    </div>
+    <div class="nav-item" onclick="goTo('margins',this,'Margin Trends')">
+      <span class="nav-icon">◬</span> Margin Trends
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-item" onclick="goTo('alerts',this,'Alerts Center')">
+      <span class="nav-icon">◉</span> Alerts Center
+      <span class="nav-badge amber" id="nb-alerts">0</span>
+    </div>
+    <div class="nav-bottom">
+      <div class="nav-item" onclick="goTo('settings',this,'Settings')">
+        <span class="nav-icon">⚙</span> Settings
+      </div>
+    </div>
+  </div>
+ 
+  <div class="main">
+ 
+    <!-- EXECUTIVE OVERVIEW -->
+    <div class="section active" id="sec-overview">
+      <div class="page-header">
+        <div>
+          <div class="page-title-big">Executive Overview</div>
+          <div class="page-sub">Executive snapshot for CFO at a glance</div>
+        </div>
+        <div class="last-updated" id="last-updated">↻ Last updated: loading...</div>
+      </div>
+      <div class="kpi-row">
+        <div class="kcard"><div class="kcard-icon ki-green">$</div><div class="kcard-body"><div class="kcard-label">Total Revenue (This Week)</div><div class="kcard-value" id="ov-rev">—</div><div class="kcard-delta" id="ov-rev-d">↑ — vs last week</div></div></div>
+        <div class="kcard"><div class="kcard-icon ki-blue">%</div><div class="kcard-body"><div class="kcard-label">Gross Profit (This Week)</div><div class="kcard-value" id="ov-prf">—</div><div class="kcard-delta" id="ov-prf-d">↑ — vs last week</div></div></div>
+        <div class="kcard"><div class="kcard-icon ki-amber">∿</div><div class="kcard-body"><div class="kcard-label">Average Margin</div><div class="kcard-value" id="ov-mgn">—</div><div class="kcard-delta" id="ov-mgn-d">↑ — vs last week</div></div></div>
+        <div class="kcard"><div class="kcard-icon ki-red">!</div><div class="kcard-body"><div class="kcard-label">Overdue Invoices</div><div class="kcard-value" id="ov-ovd">—</div><div class="kcard-delta delta-nt" id="ov-ovd-d">invoices &gt; 14 days</div></div></div>
+        <div class="kcard"><div class="kcard-icon ki-purple">↓</div><div class="kcard-body"><div class="kcard-label">Low Margin Clients</div><div class="kcard-value" id="ov-low">—</div><div class="kcard-delta delta-nt">Below 30% margin</div></div></div>
+      </div>
+      <div class="g3">
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title"><span class="panel-title-icon">!</span> Which Clients to Fire</div><span class="panel-badge pb-red">Loss Making</span></div>
+          <table><thead><tr><th>Client</th><th>Margin</th><th>Profit</th><th>Status</th><th>Action</th></tr></thead><tbody id="ov-fire"></tbody></table>
+          <div class="section-note" style="margin-top:10px">⚠ These clients are costing you money or near zero profits.</div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title"><span class="panel-title-icon">↗</span> Which Clients to Increase Pricing On</div><span class="panel-badge pb-green">Upsell</span></div>
+          <table><thead><tr><th>Client</th><th>Margin</th><th>Profit</th><th>Action</th></tr></thead><tbody id="ov-upsell"></tbody></table>
+          <div class="section-note" style="margin-top:10px">💡 Strong clients — you can increase pricing by 10–20%.</div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title"><span class="panel-title-icon">⊕</span> Team Members Underutilized</div><span class="panel-badge pb-amber">Review</span></div>
+          <table><thead><tr><th>Member</th><th>Bill Hrs</th><th>Cap Hrs</th><th>Util%</th><th>Status</th></tr></thead><tbody id="ov-team"></tbody></table>
+          <div class="section-note" style="margin-top:10px">⚡ Underutilized = higher cost per hour.</div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title"><span class="panel-title-icon">◫</span> Where Profit is Silently Leaking</div></div>
+          <table><thead><tr><th>Leakage Area</th><th>Details</th><th>Impact</th><th>Action</th></tr></thead><tbody id="ov-leak"></tbody></table>
+          <div class="leak-total"><span style="font-size:12px;color:var(--t2)">Total Profit Leakage (This Week)</span><span class="leak-amount" id="ov-leak-total">—</span></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">◫ Margin % by Client</div></div>
+          <div id="ov-mbars"></div>
+        </div>
+      </div>
+      <div class="g3" style="align-items:start">
+        <div class="panel"><div class="panel-head"><div class="panel-title" style="color:var(--green)">▲ Most Profitable Client</div></div><div id="ov-best"></div></div>
+        <div class="panel"><div class="panel-head"><div class="panel-title" style="color:var(--red)">▼ Least Profitable Client</div></div><div id="ov-worst"></div></div>
+        <div class="panel"><div class="panel-head"><div class="panel-title">↗ This Week Summary</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="ov-summary"></div></div>
+      </div>
+      <div class="panel"><div class="panel-head"><div class="panel-title">◉ Top Alerts This Week</div></div><div id="ov-alerts"></div></div>
+    </div>
+ 
+    <!-- CLIENT PROFITABILITY -->
+    <div class="section" id="sec-profitability">
+      <div class="page-title-big">Client Profitability</div>
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">◈ All Clients — <span id="prof-wk">Week 4</span></div></div>
+        <table><thead><tr><th>Client</th><th>Revenue</th><th>Team Cost</th><th>Profit</th><th>Margin %</th><th>Hours</th><th>Member</th><th>Payment</th></tr></thead><tbody id="prof-tbody"></tbody></table>
+      </div>
+      <div class="g2">
+        <div class="panel"><div class="panel-head"><div class="panel-title">◫ Margin % by Client</div></div><div id="prof-bars"></div></div>
+        <div class="panel"><div class="panel-head"><div class="panel-title">◈ Revenue Split</div></div><div id="prof-rev-bars"></div></div>
+      </div>
+    </div>
+ 
+    <!-- CLIENTS TO ACTION -->
+    <div class="section" id="sec-action">
+      <div class="page-title-big">Clients to Action</div>
+      <div class="g2">
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title" style="color:var(--red)">! Fire / Low Margin Clients</div><span class="panel-badge pb-red">Action Required</span></div>
+          <table><thead><tr><th>Client</th><th>Margin</th><th>Profit</th><th>Hours</th><th>Action</th></tr></thead><tbody id="act-fire"></tbody></table>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title" style="color:var(--green)">↗ Increase Pricing On</div><span class="panel-badge pb-green">Opportunity</span></div>
+          <table><thead><tr><th>Client</th><th>Margin</th><th>Profit</th><th>Hours</th><th>Action</th></tr></thead><tbody id="act-upsell"></tbody></table>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- TEAM UTILIZATION -->
+    <div class="section" id="sec-team">
+      <div class="page-title-big">Team Utilization</div>
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">⊕ All Team Members</div></div>
+        <table><thead><tr><th>Member</th><th>Client</th><th>Billable Hrs</th><th>Capacity Hrs</th><th>Utilization %</th><th>Status</th></tr></thead><tbody id="team-tbody"></tbody></table>
+      </div>
+      <div class="panel"><div class="panel-head"><div class="panel-title">◫ Utilization Bars</div></div><div id="team-bars"></div></div>
+    </div>
+ 
+    <!-- PROFIT LEAKAGES -->
+    <div class="section" id="sec-leakage">
+      <div class="page-title-big">Profit Leakages</div>
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">◫ Where Profit is Silently Leaking</div></div>
+        <table><thead><tr><th>Leakage Area</th><th>Details</th><th>Impact (This Week)</th><th>Action</th></tr></thead><tbody id="leak-tbody"></tbody></table>
+        <div class="leak-total"><span>Total Profit Leakage (This Week)</span><span class="leak-amount" id="leak-total">—</span></div>
+      </div>
+    </div>
+ 
+    <!-- OVERDUE INVOICES -->
+    <div class="section" id="sec-invoices">
+      <div class="page-title-big">Overdue Invoices</div>
+      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+        <div class="kcard"><div class="kcard-icon ki-blue">$</div><div class="kcard-body"><div class="kcard-label">Total Invoiced</div><div class="kcard-value" id="inv-tot">—</div><div class="kcard-delta delta-nt">This week</div></div></div>
+        <div class="kcard"><div class="kcard-icon ki-green">✓</div><div class="kcard-body"><div class="kcard-label">Collected</div><div class="kcard-value" id="inv-paid">—</div><div class="kcard-delta delta-up">↑ Paid</div></div></div>
+        <div class="kcard"><div class="kcard-icon ki-amber">○</div><div class="kcard-body"><div class="kcard-label">Pending</div><div class="kcard-value" id="inv-pend">—</div><div class="kcard-delta delta-nt">Awaiting</div></div></div>
+        <div class="kcard"><div class="kcard-icon ki-red">!</div><div class="kcard-body"><div class="kcard-label">Overdue</div><div class="kcard-value" id="inv-ovd">—</div><div class="kcard-delta delta-dn">↓ Action needed</div></div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">◻ Invoice Details</div></div>
+        <table><thead><tr><th>Client</th><th>Amount</th><th>Member</th><th>Due Date</th><th>Days Overdue</th><th>Status</th><th>Action</th></tr></thead><tbody id="inv-tbody"></tbody></table>
+      </div>
+    </div>
+ 
+    <!-- CASH FLOW -->
+    <div class="section" id="sec-cashflow">
+      <div class="page-title-big">Cash Flow</div>
+      <div class="g3">
+        <div class="kcard"><div class="kcard-icon ki-green">↑</div><div class="kcard-body"><div class="kcard-label">Total Collected</div><div class="kcard-value" id="cf-in">—</div><div class="kcard-delta delta-up">↑ This week</div></div></div>
+        <div class="kcard"><div class="kcard-icon ki-red">↓</div><div class="kcard-body"><div class="kcard-label">Total Team Cost</div><div class="kcard-value" id="cf-out">—</div><div class="kcard-delta delta-dn">↓ Expenses</div></div></div>
+        <div class="kcard"><div class="kcard-icon ki-blue">≈</div><div class="kcard-body"><div class="kcard-label">Net Cash Flow</div><div class="kcard-value" id="cf-net">—</div><div class="kcard-delta delta-up">↑ Net this week</div></div></div>
+      </div>
+      <div class="panel"><div class="panel-head"><div class="panel-title">→ Cash Flow by Client</div></div><div id="cf-bars"></div></div>
+    </div>
+ 
+    <!-- MARGIN TRENDS -->
+    <div class="section" id="sec-margins">
+      <div class="page-title-big">Margin Trends</div>
+      <div class="panel"><div class="panel-head"><div class="panel-title">◬ Margin % — All Weeks Comparison</div></div><div id="trend-table-wrap"></div></div>
+      <div class="panel"><div class="panel-head"><div class="panel-title">◫ Margin % by Client (This Week)</div></div><div id="trend-bars"></div></div>
+    </div>
+ 
+    <!-- ALERTS CENTER -->
+    <div class="section" id="sec-alerts">
+      <div class="page-title-big">Alerts Center</div>
+      <div class="g2">
+        <div class="panel"><div class="panel-head"><div class="panel-title" style="color:var(--red)">◉ Critical Alerts</div></div><div id="alert-critical"></div></div>
+        <div class="panel"><div class="panel-head"><div class="panel-title" style="color:var(--amber)">◉ Warnings</div></div><div id="alert-warn"></div></div>
+      </div>
+      <div class="panel"><div class="panel-head"><div class="panel-title" style="color:var(--green)">◉ All Clear</div></div><div id="alert-ok"></div></div>
+    </div>
+ 
+    <!-- SETTINGS -->
+    <div class="section" id="sec-settings">
+      <div class="page-title-big">Settings</div>
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">⚙ Google Sheets Connection</div></div>
+        <div style="font-size:13px;color:var(--t2);line-height:2.2">
+          <p style="color:var(--green);margin-bottom:12px">✓ Sheet ID is configured. Dashboard auto-refreshes every 60 seconds.</p>
+          <p><strong style="color:var(--t1)">Sheet ID:</strong> <code style="background:var(--bg3);padding:2px 8px;border-radius:4px;color:var(--blue)">1Zmf7Aluod8la9CwKfgEpuCwDXtswbHUDgm5D2QVp_E0</code></p>
+          <p style="margin-top:8px"><strong style="color:var(--t1)">Sheet Name:</strong> <code style="background:var(--bg3);padding:2px 8px;border-radius:4px;color:var(--blue)">Sheet1</code></p>
+          <p style="margin-top:8px"><strong style="color:var(--t1)">Refresh Interval:</strong> Every 60 seconds</p>
+        </div>
+      </div>
+    </div>
+ 
+  </div>
+</div>
+ 
+<script>
+// ══════════════════════════════
+// FALLBACK DATA (used if sheet fails)
+// ══════════════════════════════
+const FALLBACK = [
+  {c:'Client D',rev:56000,hrs:5, cost:100,prf:55900,mgn:99.8,pay:'Unpaid',ovd:true, days:43, mem:'John', wk:'Week 2',util:12.5,cap:40,due:'2026-04-12'},
+  {c:'Client C',rev:60000,hrs:25,cost:500,prf:59500,mgn:99.2,pay:'Paid',  ovd:false,days:0,  mem:'Tracy',wk:'Week 2',util:62.5,cap:40,due:'2026-04-17'},
+  {c:'Memona',  rev:5000, hrs:5, cost:100,prf:4900, mgn:98.0,pay:'Unpaid',ovd:true, days:140,mem:'Julie',wk:'Week 2',util:12.5,cap:40,due:'2026-01-05'},
+  {c:"Nimra's", rev:10000,hrs:10,cost:200,prf:9800, mgn:98.0,pay:'Unpaid',ovd:true, days:40, mem:'Sara', wk:'Week 2',util:25.0,cap:40,due:'2026-04-15'},
+  {c:'Client D',rev:56000,hrs:5, cost:100,prf:55900,mgn:99.8,pay:'Paid',  ovd:false,days:0,  mem:'John', wk:'Week 3',util:12.5,cap:40,due:'2026-04-12'},
+  {c:'Client C',rev:60000,hrs:28,cost:560,prf:59440,mgn:99.1,pay:'Paid',  ovd:false,days:0,  mem:'Tracy',wk:'Week 3',util:70.0,cap:40,due:'2026-04-17'},
+  {c:'Memona',  rev:5000, hrs:4, cost:80, prf:4920, mgn:98.4,pay:'Unpaid',ovd:true, days:140,mem:'Julie',wk:'Week 3',util:10.0,cap:40,due:'2026-01-05'},
+  {c:"Nimra's", rev:10000,hrs:12,cost:240,prf:9760, mgn:97.6,pay:'Unpaid',ovd:true, days:40, mem:'Sara', wk:'Week 3',util:30.0,cap:40,due:'2026-04-15'},
+  {c:'Client D',rev:56000,hrs:8, cost:160,prf:55840,mgn:99.7,pay:'Unpaid',ovd:false,days:0,  mem:'John', wk:'Week 4',util:20.0,cap:40,due:'2026-04-12'},
+  {c:'Client C',rev:60000,hrs:30,cost:600,prf:59400,mgn:99.0,pay:'Paid',  ovd:false,days:0,  mem:'Tracy',wk:'Week 4',util:75.0,cap:40,due:'2026-04-17'},
+  {c:'Memona',  rev:5000, hrs:3, cost:60, prf:4940, mgn:98.8,pay:'Unpaid',ovd:true, days:140,mem:'Julie',wk:'Week 4',util:7.5, cap:40,due:'2026-01-05'},
+  {c:"Nimra's", rev:10000,hrs:15,cost:300,prf:9700, mgn:97.0,pay:'Paid',  ovd:false,days:0,  mem:'Sara', wk:'Week 4',util:37.5,cap:40,due:'2026-04-15'},
+];
+ 
+const LEAKAGE = [
+  {area:'Unbilled Time',    detail:'23.6 hours logged but not billed',impact:4720, action:'Review & Bill'},
+  {area:'Discounts Given',  detail:'8 invoices with discounts > 15%', impact:3250, action:'Review Pricing'},
+  {area:'Scope Creep',      detail:'12 projects over original scope',  impact:5600, action:'Set Boundaries'},
+  {area:'Overdue Invoices', detail:'5 invoices > 14 days',            impact:18450,action:'Follow Up'},
+  {area:'Low Margin Clients',detail:'2 clients below 30% margin',     impact:4980, action:'Take Action'},
+];
+ 
+let DATA = [...FALLBACK];
+let W = 'Week 4';
+const $ = id => document.getElementById(id);
+const m = n => '$' + n.toLocaleString();
+ 
+function pB(p){
+  return p.toLowerCase()==='paid'
+    ?`<span class="badge b-paid">Paid</span>`
+    :`<span class="badge b-unpaid">Unpaid</span>`;
+}
+function uStatus(u){
+  if(u>=90) return`<span class="badge b-overloaded">Overloaded</span>`;
+  if(u>=70) return`<span class="badge b-optimal">Optimal</span>`;
+  if(u>=40) return`<span class="badge" style="background:rgba(52,211,153,0.1);color:var(--green)">Okay</span>`;
+  return`<span class="badge b-underutil">Underutilized</span>`;
+}
+function barFill(u){return u<30?'bf-red':u<60?'bf-amber':'bf-green'}
+ 
+// ══════════════════════════════
+// GOOGLE SHEETS LIVE CONNECTION
+// ══════════════════════════════
+const SHEET_ID  = '1Zmf7Aluod8la9CwKfgEpuCwDXtswbHUDgm5D2QVp_E0';
+const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet1`;
+ 
+async function fetchSheet() {
+  const statusEl = $('sheet-status');
+  try {
+    const res  = await fetch(SHEET_URL);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(47, text.length - 2));
+    const rows = json.table.rows;
+ 
+    const live = rows.map(r => {
+      const v = r.c;
+      // Columns: A=clientName B=totalRevenue C=totalHours D=hourlyRate E=teamCost
+      //          F=profit G=marginPercent H=colorStatus I=paymentStatus J=dueDate
+      //          K=overdueFlag L=daysOverdue M=lowMarginAlert N=teamMember O=week
+      //          P=capacityHours Q=utilizationPercent R=weekClient
+      return {
+        c:    v[0]?.v||'',
+        rev:  +v[1]?.v||0,
+        hrs:  +v[2]?.v||0,
+        cost: +v[4]?.v||0,
+        prf:  +v[5]?.v||0,
+        mgn:  +v[6]?.v||0,
+        pay:  v[8]?.v||'Unpaid',
+        due:  v[9]?.v||'',
+        ovd:  v[10]?.v===true||String(v[10]?.v).toUpperCase()==='TRUE',
+        days: +v[11]?.v||0,
+        mem:  v[13]?.v||'',
+        wk:   v[14]?.v||'',
+        cap:  +v[15]?.v||40,
+        util: +v[16]?.v||0,
+      };
+    }).filter(x=>x.c&&x.wk);
+ 
+    if(live.length > 0){
+      DATA = live;
+      statusEl.textContent = '✓ Live — Sheet Connected';
+      statusEl.className = 'sheet-status connected';
+    } else {
+      statusEl.textContent = '⚠ Sheet empty — using demo data';
+      statusEl.className = 'sheet-status';
+    }
+    render();
+  } catch(e){
+    console.warn('Sheet fetch error:', e);
+    statusEl.textContent = '✗ Sheet error — using demo data';
+    statusEl.className = 'sheet-status';
+    DATA = [...FALLBACK];
+    render();
+  }
+}
+ 
+function render() {
+  const d    = DATA.filter(x=>x.wk===W);
+  const prev = DATA.filter(x=>x.wk==='Week 3');
+ 
+  if(!d.length){ return; }
+ 
+  const ovd  = d.filter(x=>x.ovd&&x.days>0);
+  const paid = d.filter(x=>x.pay.toLowerCase()==='paid');
+  const unp  = d.filter(x=>x.pay.toLowerCase()!=='paid');
+  const low  = d.filter(x=>x.mgn<30);
+ 
+  const totRev  = d.reduce((s,x)=>s+x.rev,0);
+  const totPrf  = d.reduce((s,x)=>s+x.prf,0);
+  const totCost = d.reduce((s,x)=>s+x.cost,0);
+  const avgMgn  = d.reduce((s,x)=>s+x.mgn,0)/d.length;
+  const maxRev  = Math.max(...d.map(x=>x.rev));
+ 
+  const prevRev = prev.reduce((s,x)=>s+x.rev,0);
+  const prevPrf = prev.reduce((s,x)=>s+x.prf,0);
+  const prevMgn = prev.length ? prev.reduce((s,x)=>s+x.mgn,0)/prev.length : avgMgn;
+ 
+  const revDelta = prevRev ? (((totRev-prevRev)/prevRev)*100).toFixed(1) : 0;
+  const prfDelta = prevPrf ? (((totPrf-prevPrf)/prevPrf)*100).toFixed(1) : 0;
+  const mgnDelta = (avgMgn-prevMgn).toFixed(1);
+ 
+  $('nb-inv').textContent    = ovd.length;
+  $('nb-action').textContent = d.filter(x=>x.mgn<30||x.util<40).length;
+  $('nb-alerts').textContent = ovd.length + d.filter(x=>x.util<30).length;
+  $('last-updated').innerHTML = `↻ Last updated: ${new Date().toLocaleTimeString()}`;
+ 
+  $('ov-rev').textContent = m(totRev);
+  $('ov-prf').textContent = m(totPrf);
+  $('ov-mgn').textContent = avgMgn.toFixed(1)+'%';
+  $('ov-ovd').textContent = ovd.length;
+  $('ov-low').textContent = low.length;
+  $('ov-rev-d').innerHTML = `<span class="${revDelta>=0?'delta-up':'delta-dn'}">${revDelta>=0?'↑':'↓'} ${Math.abs(revDelta)}% vs last week</span>`;
+  $('ov-prf-d').innerHTML = `<span class="${prfDelta>=0?'delta-up':'delta-dn'}">${prfDelta>=0?'↑':'↓'} ${Math.abs(prfDelta)}% vs last week</span>`;
+  $('ov-mgn-d').innerHTML = `<span class="${mgnDelta>=0?'delta-up':'delta-dn'}">${mgnDelta>=0?'↑':'↓'} ${Math.abs(mgnDelta)}pp vs last week</span>`;
+ 
+  const fireC   = d.filter(x=>x.mgn<30).sort((a,b)=>a.mgn-b.mgn);
+  const upsellC = d.filter(x=>x.mgn>=70).sort((a,b)=>b.mgn-a.mgn);
+ 
+  $('ov-fire').innerHTML = (fireC.length?fireC:[...d].sort((a,b)=>a.mgn-b.mgn).slice(0,2)).map(x=>`
+    <tr>
+      <td class="td-s">${x.c}</td>
+      <td class="${x.mgn<0?'td-r':'td-a'} td-m">${x.mgn.toFixed(1)}%</td>
+      <td class="td-m ${x.prf<0?'td-r':''}">${m(x.prf)}</td>
+      <td>${x.mgn<0?`<span class="badge b-fire">LOSS</span>`:`<span class="badge b-review">LOW</span>`}</td>
+      <td><button class="act-btn ${x.mgn<0?'act-fire':'act-review'}">${x.mgn<0?'FIRE':'REVIEW'}</button></td>
+    </tr>`).join('');
+ 
+  $('ov-upsell').innerHTML = (upsellC.length?upsellC:[...d].sort((a,b)=>b.mgn-a.mgn).slice(0,3)).map(x=>`
+    <tr>
+      <td class="td-s">${x.c}</td>
+      <td class="td-g td-m">${x.mgn.toFixed(1)}%</td>
+      <td class="td-m">${m(x.prf)}</td>
+      <td><button class="act-btn act-increase">INCREASE PRICE</button></td>
+    </tr>`).join('');
+ 
+  $('ov-team').innerHTML = d.map(x=>`
+    <tr>
+      <td class="td-s">${x.mem}</td><td>${x.hrs}</td><td>${x.cap}</td>
+      <td class="td-m ${x.util<30?'td-a':''}">${x.util.toFixed(0)}%</td>
+      <td>${uStatus(x.util)}</td>
+    </tr>`).join('');
+ 
+  const leakTotal = LEAKAGE.reduce((s,l)=>s+l.impact,0);
+  $('ov-leak').innerHTML = LEAKAGE.map(l=>`
+    <tr>
+      <td class="td-s">${l.area}</td>
+      <td style="color:var(--t3);font-size:11px">${l.detail}</td>
+      <td class="td-r td-m">${m(l.impact)}</td>
+      <td><button class="act-btn act-follow">${l.action}</button></td>
+    </tr>`).join('');
+  $('ov-leak-total').textContent = m(leakTotal);
+  $('leak-tbody').innerHTML = $('ov-leak').innerHTML;
+  $('leak-total').textContent = m(leakTotal);
+ 
+  $('ov-mbars').innerHTML = d.map(x=>`
+    <div class="bar-row">
+      <div class="bar-name">${x.c}</div>
+      <div class="bar-track"><div class="bar-fill bf-blue" style="width:${Math.min(x.mgn,100).toFixed(1)}%"></div></div>
+      <div class="bar-val">${x.mgn.toFixed(1)}%</div>
+    </div>`).join('');
+ 
+  const best  = d.reduce((a,b)=>a.mgn>b.mgn?a:b);
+  const worst = d.reduce((a,b)=>a.mgn<b.mgn?a:b);
+  $('ov-best').innerHTML  = `<div style="font-size:22px;font-weight:700;color:var(--t1);margin-bottom:6px">${best.c}</div><div style="font-size:13px;color:var(--t2)">Margin: <span style="color:var(--green);font-family:var(--mono)">${best.mgn.toFixed(1)}%</span></div><div style="font-size:13px;color:var(--t2)">Profit: <span style="color:var(--green);font-family:var(--mono)">${m(best.prf)}</span></div>`;
+  $('ov-worst').innerHTML = `<div style="font-size:22px;font-weight:700;color:var(--t1);margin-bottom:6px">${worst.c}</div><div style="font-size:13px;color:var(--t2)">Margin: <span style="color:var(--red);font-family:var(--mono)">${worst.mgn.toFixed(1)}%</span></div><div style="font-size:13px;color:var(--t2)">${worst.prf<0?'Loss':'Profit'}: <span style="color:var(--red);font-family:var(--mono)">${m(Math.abs(worst.prf))}</span></div>`;
+  $('ov-summary').innerHTML = `
+    <div><div class="stat-lbl">Revenue</div><div class="stat-val" style="font-size:15px">${m(totRev)}</div><div class="stat-delta delta-up">↑ ${revDelta}%</div></div>
+    <div><div class="stat-lbl">Profit</div><div class="stat-val" style="font-size:15px">${m(totPrf)}</div><div class="stat-delta delta-up">↑ ${prfDelta}%</div></div>
+    <div><div class="stat-lbl">Margin</div><div class="stat-val" style="font-size:15px">${avgMgn.toFixed(1)}%</div><div class="stat-delta delta-up">↑ ${mgnDelta}pp</div></div>
+    <div><div class="stat-lbl">Overdue</div><div class="stat-val" style="font-size:15px;color:var(--red)">${ovd.length}</div><div class="stat-delta delta-dn">↓ Need action</div></div>`;
+ 
+  const alertItems=[];
+  ovd.slice(0,2).forEach(x=>alertItems.push(`<div class="alert-item"><div class="alert-dot ad-r"></div><div class="alert-text"><strong>${x.c}</strong> invoice overdue <strong>${x.days} days</strong></div></div>`));
+  d.filter(x=>x.util<30).slice(0,1).forEach(x=>alertItems.push(`<div class="alert-item"><div class="alert-dot ad-a"></div><div class="alert-text"><strong>${x.mem}</strong> utilization <strong>${x.util}%</strong> — below threshold</div></div>`));
+  $('ov-alerts').innerHTML = alertItems.join('')||'<div style="color:var(--t3);font-size:12px;padding:8px 0">No alerts ✓</div>';
+ 
+  $('prof-wk').textContent = W;
+  $('prof-tbody').innerHTML = d.map(x=>`
+    <tr>
+      <td class="td-s">${x.c}</td><td class="td-m">${m(x.rev)}</td>
+      <td class="td-r td-m">$${x.cost.toLocaleString()}</td>
+      <td class="td-g td-m">${m(x.prf)}</td>
+      <td class="td-g">${x.mgn.toFixed(1)}%</td>
+      <td>${x.hrs}h</td><td>${x.mem}</td><td>${pB(x.pay)}</td>
+    </tr>`).join('');
+  $('prof-bars').innerHTML = d.map(x=>`<div class="bar-row"><div class="bar-name">${x.c}</div><div class="bar-track"><div class="bar-fill ${barFill(x.mgn)}" style="width:${Math.min(x.mgn,100).toFixed(1)}%"></div></div><div class="bar-val">${x.mgn.toFixed(1)}%</div></div>`).join('');
+  $('prof-rev-bars').innerHTML = d.map(x=>`<div class="bar-row"><div class="bar-name">${x.c}</div><div class="bar-track"><div class="bar-fill bf-blue" style="width:${(x.rev/maxRev*100).toFixed(1)}%"></div></div><div class="bar-val">${m(x.rev)}</div></div>`).join('');
+ 
+  $('act-fire').innerHTML = [...d].sort((a,b)=>a.mgn-b.mgn).slice(0,3).map(x=>`
+    <tr><td class="td-s">${x.c}</td><td class="${x.mgn<50?'td-a':'td-g'} td-m">${x.mgn.toFixed(1)}%</td>
+    <td class="td-m">${m(x.prf)}</td><td>${x.hrs}h</td>
+    <td><button class="act-btn ${x.mgn<30?'act-fire':'act-review'}">${x.mgn<30?'FIRE':'REVIEW'}</button></td></tr>`).join('');
+  $('act-upsell').innerHTML = [...d].sort((a,b)=>b.mgn-a.mgn).slice(0,3).map(x=>`
+    <tr><td class="td-s">${x.c}</td><td class="td-g td-m">${x.mgn.toFixed(1)}%</td>
+    <td class="td-m">${m(x.prf)}</td><td>${x.hrs}h</td>
+    <td><button class="act-btn act-increase">INCREASE PRICE</button></td></tr>`).join('');
+ 
+  $('team-tbody').innerHTML = d.map(x=>`
+    <tr><td class="td-s">${x.mem}</td><td>${x.c}</td><td>${x.hrs}h</td><td>${x.cap}h</td>
+    <td><div style="display:flex;align-items:center;gap:8px"><div class="util-bar"><div class="util-fill ${barFill(x.util)}" style="width:${x.util.toFixed(0)}%"></div></div><span style="font-family:var(--mono);font-size:11px;width:32px">${x.util.toFixed(0)}%</span></div></td>
+    <td>${uStatus(x.util)}</td></tr>`).join('');
+  $('team-bars').innerHTML = d.map(x=>`<div class="bar-row"><div class="bar-name">${x.mem}</div><div class="bar-track"><div class="bar-fill ${barFill(x.util)}" style="width:${x.util.toFixed(0)}%"></div></div><div class="bar-val">${x.util.toFixed(0)}%</div></div>`).join('');
+ 
+  $('inv-tot').textContent  = m(totRev);
+  $('inv-paid').textContent = m(paid.reduce((s,x)=>s+x.rev,0));
+  $('inv-pend').textContent = m(unp.reduce((s,x)=>s+x.rev,0));
+  $('inv-ovd').textContent  = ovd.length;
+  $('inv-tbody').innerHTML  = d.map(x=>{
+    const isO=x.ovd&&x.days>0;
+    return`<tr><td class="td-s">${x.c}</td><td class="td-m">${m(x.rev)}</td><td>${x.mem}</td><td>${x.due}</td>
+    <td class="${isO?'td-r':''} td-m">${x.days>0?x.days+' days':'—'}</td>
+    <td>${isO?`<span class="badge b-overdue">Overdue</span>`:pB(x.pay)}</td>
+    <td><button class="act-btn ${isO?'act-fire':'act-follow'}">${isO?'Follow Up':'View'}</button></td></tr>`;
+  }).join('');
+ 
+  $('cf-in').textContent  = m(paid.reduce((s,x)=>s+x.rev,0));
+  $('cf-out').textContent = m(totCost);
+  $('cf-net').textContent = m(totPrf);
+  $('cf-bars').innerHTML  = d.map(x=>`<div class="bar-row"><div class="bar-name">${x.c}</div><div class="bar-track"><div class="bar-fill bf-green" style="width:${(x.prf/totPrf*100).toFixed(1)}%"></div></div><div class="bar-val">${m(x.prf)}</div></div>`).join('');
+ 
+  const weeks=['Week 2','Week 3','Week 4'];
+  const clients=[...new Set(DATA.map(x=>x.c))];
+  $('trend-table-wrap').innerHTML=`<table><thead><tr><th>Client</th>${weeks.map(w=>`<th>${w}</th>`).join('')}<th>Trend</th></tr></thead><tbody>${
+    clients.map(c=>{
+      const vals=weeks.map(w=>{const r=DATA.find(x=>x.c===c&&x.wk===w);return r?r.mgn:null;});
+      const trend=vals[2]&&vals[0]?vals[2]-vals[0]:0;
+      return`<tr><td class="td-s">${c}</td>${vals.map(v=>v!==null?`<td class="td-g td-m">${v.toFixed(1)}%</td>`:`<td class="td-a">—</td>`).join('')}<td class="${trend>=0?'td-g':'td-r'}">${trend>=0?'↑':'↓'} ${Math.abs(trend).toFixed(1)}pp</td></tr>`;
+    }).join('')
+  }</tbody></table>`;
+  $('trend-bars').innerHTML = d.map(x=>`<div class="bar-row"><div class="bar-name">${x.c}</div><div class="bar-track"><div class="bar-fill bf-blue" style="width:${Math.min(x.mgn,100).toFixed(1)}%"></div></div><div class="bar-val">${x.mgn.toFixed(1)}%</div></div>`).join('');
+ 
+  const crits=ovd.map(x=>`<div class="alert-item"><div class="alert-dot ad-r"></div><div class="alert-text"><strong>${x.c}</strong> — invoice overdue by <strong style="color:var(--red)">${x.days} days</strong> (due ${x.due}). Assigned to ${x.mem}.</div></div>`);
+  const warns=d.filter(x=>x.util<30).map(x=>`<div class="alert-item"><div class="alert-dot ad-a"></div><div class="alert-text"><strong>${x.mem}</strong> underutilized at <strong style="color:var(--amber)">${x.util.toFixed(0)}%</strong> (${x.hrs}h / ${x.cap}h). Consider reallocating.</div></div>`);
+  const oks=d.filter(x=>!x.ovd&&x.util>=40).map(x=>`<div class="alert-item"><div class="alert-dot ad-g"></div><div class="alert-text"><strong>${x.c}</strong> — ${x.mem} at <strong style="color:var(--green)">${x.util.toFixed(0)}%</strong> utilization. Invoice ${x.pay.toLowerCase()==='paid'?'paid ✓':'pending'}.</div></div>`);
+  $('alert-critical').innerHTML=crits.join('')||`<div style="color:var(--t3);font-size:12px;padding:8px 0">No critical alerts ✓</div>`;
+  $('alert-warn').innerHTML=warns.join('')||`<div style="color:var(--t3);font-size:12px;padding:8px 0">No warnings ✓</div>`;
+  $('alert-ok').innerHTML=oks.join('')||`<div style="color:var(--t3);font-size:12px;padding:8px 0">Nothing to report</div>`;
+}
+ 
+function goTo(id,el,title){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  el.classList.add('active');
+  $('page-heading').textContent=title;
+}
+ 
+function setWeek(w,el){
+  W=w;
+  document.querySelectorAll('.wtab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+ 
+// Start — fetch sheet, then refresh every 60s
+fetchSheet();
+setInterval(fetchSheet, 60000);
+</script>
+</body>
+</html>
