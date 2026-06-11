@@ -1,638 +1,1169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Financial Nerve Center</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nexora Retail | CFO Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f1117;--bg2:#161b27;--bg3:#1c2333;--bg4:#222d40;
-  --bdr:rgba(255,255,255,0.07);--bdr2:rgba(255,255,255,0.12);
-  --t1:#f0f4ff;--t2:#8b95a9;--t3:#7a8699;
-  --blue:#4f8ef7;--blue-d:rgba(79,142,247,0.1);--blue-b:rgba(79,142,247,0.25);
-  --green:#34d399;--green-d:rgba(52,211,153,0.1);
-  --amber:#f59e0b;--amber-d:rgba(245,158,11,0.1);
-  --red:#f87171;--red-d:rgba(248,113,113,0.1);
-  --purple:#a78bfa;--purple-d:rgba(167,139,250,0.1);
-  --sans:'Inter',system-ui,sans-serif;
-  --mono:'JetBrains Mono','Courier New',monospace;
+  --bg:#0f1117;--bg2:#161b27;--bg3:#1e2535;--bg4:#252d3f;
+  --border:#2a3248;--border2:#344060;
+  --text:#e8ecf4;--text2:#8b97b4;--text3:#4d5d82;
+  --accent:#3b7cff;--accent2:#1a4fd6;
+  --green:#22c55e;--green-bg:rgba(34,197,94,.08);--green-border:rgba(34,197,94,.2);
+  --red:#ef4444;--red-bg:rgba(239,68,68,.08);--red-border:rgba(239,68,68,.2);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,.08);--amber-border:rgba(245,158,11,.2);
+  --cyan:#06b6d4;--cyan-bg:rgba(6,182,212,.08);
+  --radius:8px;--radius2:12px;--sidebar:220px;
 }
-html,body{height:100%;overflow:hidden;background:var(--bg)}
-body{font-family:var(--sans);color:var(--t1);display:flex;flex-direction:column;height:100vh;font-size:13px}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:48px;background:var(--bg2);border-bottom:1px solid var(--bdr);flex-shrink:0;z-index:100;}
-.logo{font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--t1)}
-.topbar-center{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:var(--t1)}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:13px}
+.sidebar{width:var(--sidebar);min-height:100vh;background:var(--bg2);border-right:1px solid var(--border);position:fixed;left:0;top:0;bottom:0;z-index:200;display:flex;flex-direction:column;overflow-y:auto}
+.sb-header{padding:20px 16px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sb-brand{display:flex;align-items:center;gap:9px}
+.sb-dot{width:8px;height:8px;background:var(--green);border-radius:50%;animation:blink 2s infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.sb-name{font-size:12px;font-weight:700;color:var(--text);letter-spacing:.01em}
+.sb-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.sb-period{margin-top:10px;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:10px;color:var(--text2)}
+.sb-period span{display:block;font-size:11px;color:var(--accent);font-weight:600;margin-top:2px}
+.sb-nav{padding:12px 8px;flex:1}
+.sb-section{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.12em;padding:8px 8px 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:12px;font-weight:500;margin-bottom:1px;transition:all .15s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:rgba(59,124,255,.12);color:var(--accent);border-left:2px solid var(--accent);padding-left:8px}
+.nav-icon{width:16px;text-align:center;font-size:14px}
+.sb-footer{padding:14px 16px;border-top:1px solid var(--border);flex-shrink:0}
+.sb-updated{font-size:10px;color:var(--text3);line-height:1.6}
+.sb-tag{display:inline-block;background:rgba(34,197,94,.1);border:1px solid var(--green-border);color:var(--green);font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;margin-bottom:4px;letter-spacing:.06em}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 24px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-title{font-size:14px;font-weight:700;color:var(--text)}
+.topbar-divider{width:1px;height:18px;background:var(--border2)}
+.topbar-breadcrumb{font-size:12px;color:var(--text3)}
 .topbar-right{display:flex;align-items:center;gap:10px}
-.icon-btn{width:30px;height:30px;border-radius:6px;border:1px solid var(--bdr2);background:var(--bg3);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);font-size:14px;}
-.live-pill{display:flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:var(--green);background:var(--green-d);border:1px solid rgba(52,211,153,0.2);border-radius:20px;padding:3px 10px}
-.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:blink 2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-.layout{display:flex;flex:1;overflow:hidden}
-.sidebar{width:190px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--bdr);padding:8px 0 20px;display:flex;flex-direction:column;overflow-y:auto;}
-.nav-item{display:flex;align-items:center;gap:9px;padding:8px 16px;font-size:12.5px;color:var(--t2);cursor:pointer;border-left:2px solid transparent;transition:all 0.12s;user-select:none;font-weight:400;}
-.nav-item:hover{background:rgba(255,255,255,0.03);color:var(--t1)}
-.nav-item.active{color:var(--blue);background:var(--blue-d);border-left-color:var(--blue);font-weight:500}
-.nav-icon{font-size:14px;flex-shrink:0;width:16px;text-align:center}
-.nav-badge{margin-left:auto;font-size:9.5px;font-weight:700;border-radius:10px;padding:2px 6px;min-width:18px;text-align:center;background:rgba(248,113,113,0.2);color:var(--red);}
-.nav-badge.amber{background:rgba(245,158,11,0.2);color:var(--amber)}
-.nav-divider{height:1px;background:var(--bdr);margin:8px 0}
-.nav-bottom{margin-top:auto;padding-top:8px}
-.main{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px;background:var(--bg)}
-.main::-webkit-scrollbar{width:4px}
-.main::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:2px}
-.section{display:none;flex-direction:column;gap:14px}
-.section.active{display:flex}
-.page-header{display:flex;align-items:center;justify-content:space-between}
-.page-title-big{font-size:18px;font-weight:600;color:var(--t1)}
-.page-sub{font-size:11px;color:var(--t3);margin-top:1px}
-.last-updated{font-size:11px;color:var(--t3);display:flex;align-items:center;gap:5px}
-.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-.kcard{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:12px;transition:border-color 0.15s;}
-.kcard:hover{border-color:var(--bdr2)}
-.kcard-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.ki-green{background:var(--green-d);color:var(--green)}
-.ki-blue{background:var(--blue-d);color:var(--blue)}
-.ki-amber{background:var(--amber-d);color:var(--amber)}
-.ki-red{background:var(--red-d);color:var(--red)}
-.ki-purple{background:var(--purple-d);color:var(--purple)}
-.kcard-body{flex:1;min-width:0}
-.kcard-label{font-size:10px;color:var(--t3);font-weight:500;letter-spacing:.04em;margin-bottom:4px}
-.kcard-value{font-size:20px;font-weight:700;font-family:var(--mono);color:var(--t1);margin-bottom:4px;line-height:1}
-.kcard-delta{font-size:11px;display:flex;align-items:center;gap:3px}
-.delta-up{color:var(--green)} .delta-dn{color:var(--red)} .delta-nt{color:var(--t3)}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
-.panel{background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:14px 16px}
-.panel-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-.panel-title{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--t2);display:flex;align-items:center;gap:6px}
-.panel-title-icon{font-size:12px}
-.panel-badge{font-size:10px;padding:2px 8px;border-radius:5px;font-weight:600}
-.pb-red{background:var(--red-d);color:var(--red)}
-.pb-amber{background:var(--amber-d);color:var(--amber)}
-.pb-green{background:var(--green-d);color:var(--green)}
-.pb-blue{background:var(--blue-d);color:var(--blue)}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);text-align:left;padding:4px 8px;border-bottom:1px solid var(--bdr);white-space:nowrap}
-td{padding:8px 8px;border-bottom:1px solid rgba(255,255,255,0.025);color:var(--t2);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,0.015)}
-.td-s{font-weight:500;color:var(--t1)}
-.td-m{font-family:var(--mono);font-size:11.5px}
-.td-g{color:var(--green)}
-.td-r{color:var(--red)}
-.td-a{color:var(--amber)}
-.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;letter-spacing:.03em}
-.b-paid{background:var(--green-d);color:var(--green)}
-.b-unpaid{background:var(--amber-d);color:var(--amber)}
-.b-overdue{background:var(--red-d);color:var(--red)}
-.b-fire{background:rgba(248,113,113,0.2);color:#ff6b6b;border:1px solid rgba(248,113,113,0.3)}
-.b-review{background:rgba(245,158,11,0.15);color:var(--amber);border:1px solid rgba(245,158,11,0.3)}
-.b-increase{background:rgba(52,211,153,0.12);color:var(--green);border:1px solid rgba(52,211,153,0.25)}
-.b-optimal{background:rgba(79,142,247,0.12);color:var(--blue);border:1px solid rgba(79,142,247,0.25)}
-.b-overloaded{background:rgba(248,113,113,0.15);color:var(--red);border:1px solid rgba(248,113,113,0.3)}
-.b-underutil{background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.25)}
-.bar-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.025);font-size:12px}
-.bar-row:last-child{border-bottom:none}
-.bar-name{width:80px;color:var(--t2);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.bar-track{flex:1;height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;position:relative}
-.bar-fill{height:100%;border-radius:4px;transition:width 0.4s ease}
-.bf-green{background:linear-gradient(90deg,#22c55e,#34d399)}
-.bf-amber{background:linear-gradient(90deg,#d97706,#f59e0b)}
-.bf-red{background:linear-gradient(90deg,#dc2626,#f87171)}
-.bf-blue{background:linear-gradient(90deg,#2563eb,#4f8ef7)}
-.bar-val{width:44px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--t1);flex-shrink:0}
-.act-btn{font-size:10px;font-weight:600;padding:3px 9px;border-radius:5px;border:none;cursor:pointer;font-family:var(--sans)}
-.act-fire{background:rgba(248,113,113,0.2);color:var(--red)}
-.act-review{background:rgba(245,158,11,0.15);color:var(--amber)}
-.act-increase{background:rgba(52,211,153,0.12);color:var(--green)}
-.act-follow{background:rgba(79,142,247,0.12);color:var(--blue)}
-.leak-total{display:flex;align-items:center;justify-content:space-between;padding:10px 0 2px;border-top:1px solid var(--bdr);margin-top:8px;font-weight:600}
-.leak-amount{font-size:20px;font-family:var(--mono);color:var(--red)}
-.alert-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
-.alert-item:last-child{border-bottom:none}
-.alert-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.ad-r{background:var(--red)} .ad-a{background:var(--amber)} .ad-g{background:var(--green)}
-.alert-text{font-size:12px;color:var(--t2);line-height:1.5}
-.alert-text strong{color:var(--t1);font-weight:500}
-.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;overflow:hidden}
-.stat-lbl{font-size:10px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:var(--t3);margin-bottom:5px}
-.stat-val{font-size:18px;font-weight:700;font-family:var(--mono);color:var(--t1)}
-.stat-delta{font-size:11px;margin-top:3px}
-.week-tabs{display:flex;background:var(--bg3);border-radius:7px;padding:2px;gap:2px}
-.wtab{font-size:11.5px;padding:4px 12px;border-radius:5px;border:none;background:transparent;color:var(--t3);cursor:pointer;font-family:var(--sans);font-weight:500;transition:all .12s}
-.wtab:hover{color:var(--t2)}
-.wtab.active{background:var(--bg4);color:var(--t1);box-shadow:0 1px 3px rgba(0,0,0,0.3)}
-.section-note{font-size:11px;color:var(--t3);padding:8px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--bdr);border-radius:6px;display:flex;align-items:center;gap:6px}
-.util-bar{flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
-.util-fill{height:100%;border-radius:3px}
-.sheet-status{font-size:11px;padding:4px 10px;border-radius:5px;background:var(--amber-d);color:var(--amber);border:1px solid rgba(245,158,11,0.3)}
-.sheet-status.connected{background:var(--green-d);color:var(--green);border-color:rgba(52,211,153,0.3)}
+.tb-pill{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:4px 12px;font-size:11px;color:var(--text2)}
+.tb-btn{background:var(--accent2);color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:11px;font-weight:600;cursor:pointer;transition:background .15s}
+.tb-btn:hover{background:var(--accent)}
+.tab-bar{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 24px;overflow-x:auto;flex-shrink:0}
+.tab-btn{padding:11px 16px;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s}
+.tab-btn:hover{color:var(--text2)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.content{padding:20px 24px;flex:1}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.banner{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px 20px;display:flex;align-items:center;gap:0;margin-bottom:20px;overflow-x:auto;flex-wrap:wrap;gap:0}
+.banner-co{flex-shrink:0;margin-right:24px}
+.banner-co-name{font-size:13px;font-weight:700;color:var(--text)}
+.banner-co-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.banner-sep{width:1px;height:36px;background:var(--border2);margin:0 20px;flex-shrink:0}
+.banner-stat{text-align:right;flex:1;min-width:100px}
+.banner-stat-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em}
+.banner-stat-value{font-size:17px;font-weight:700;color:var(--text);letter-spacing:-.02em;margin-top:2px}
+.banner-stat-chg{font-size:10px;font-weight:600;margin-top:3px}
+.up{color:var(--green)}.down{color:var(--red)}.flat{color:var(--amber)}
+.sec-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-bottom:20px}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;position:relative;overflow:hidden;transition:border-color .15s}
+.kpi:hover{border-color:var(--border2)}
+.kpi-accent{position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-accent.blue{background:var(--accent)}.kpi-accent.green{background:var(--green)}.kpi-accent.red{background:var(--red)}.kpi-accent.amber{background:var(--amber)}.kpi-accent.cyan{background:var(--cyan)}
+.kpi-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.kpi-value{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.02em;line-height:1.1}
+.kpi-sub{font-size:10px;color:var(--text3);margin-top:4px}
+.kpi-chg{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;margin-top:7px;padding:2px 8px;border-radius:99px}
+.kpi-chg.up{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)}
+.kpi-chg.down{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
+.kpi-chg.flat{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:20px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:16px 18px}
+.card-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.card-tag{font-size:9px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:2px 7px;border-radius:4px}
+.chart-box{position:relative;height:200px}
+.chart-box.sm{height:160px}
+.chart-box.lg{height:240px}
+.chart-box.xl{height:300px}
+.bk-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)}
+.bk-row:last-child{border-bottom:none}
+.bk-name{font-size:11px;color:var(--text2);flex:0 0 160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bk-bar-wrap{flex:1;height:3px;background:var(--bg3);border-radius:99px;overflow:hidden}
+.bk-bar{height:3px;border-radius:99px;transition:width .7s}
+.bk-bar.blue{background:var(--accent)}.bk-bar.green{background:var(--green)}.bk-bar.red{background:var(--red)}.bk-bar.amber{background:var(--amber)}.bk-bar.cyan{background:var(--cyan)}
+.bk-val{font-size:11px;font-weight:700;color:var(--text);flex:0 0 100px;text-align:right}
+.bk-pct{font-size:10px;color:var(--text3);flex:0 0 40px;text-align:right}
+.bank-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.bank-row:last-child{border-bottom:none}
+.bank-badge{width:28px;height:28px;border-radius:6px;background:var(--bg3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.bank-name{font-size:11px;color:var(--text2);flex:1}
+.bank-amount{font-size:12px;font-weight:700}
+.bank-amount.pos{color:var(--green)}.bank-amount.neg{color:var(--red)}
+.fin-table{width:100%;border-collapse:collapse;font-size:11px}
+.fin-table th{background:var(--bg3);padding:7px 12px;text-align:left;color:var(--text3);font-size:10px;text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border)}
+.fin-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text2)}
+.fin-table tr:hover td{background:var(--bg3)}
+.fin-table tr.total td{color:var(--text);font-weight:700;background:var(--bg3)}
+.fin-table td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:var(--text)}
+.pill{display:inline-block;padding:1px 7px;border-radius:99px;font-size:10px;font-weight:700}
+.pill.up{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)}
+.pill.down{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
+.pill.flat{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber)}
+.pill.high{background:rgba(239,68,68,.12);border:1px solid var(--red-border);color:var(--red)}
+.pill.medium{background:rgba(245,158,11,.12);border:1px solid var(--amber-border);color:var(--amber)}
+.pill.low{background:rgba(34,197,94,.12);border:1px solid var(--green-border);color:var(--green)}
+.pill.poor{background:rgba(239,68,68,.12);border:1px solid var(--red-border);color:var(--red)}
+.pill.watch{background:rgba(245,158,11,.12);border:1px solid var(--amber-border);color:var(--amber)}
+.pill.good{background:rgba(34,197,94,.12);border:1px solid var(--green-border);color:var(--green)}
+.ratio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ratio-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
+.ratio-val{font-size:24px;font-weight:700;color:var(--text);letter-spacing:-.02em}
+.ratio-lbl{font-size:10px;color:var(--text3);margin-top:4px}
+.ratio-status{font-size:9px;font-weight:700;margin-top:6px;padding:2px 8px;border-radius:99px;display:inline-block}
+.r-ok{background:var(--green-bg);border:1px solid var(--green-border);color:var(--green)}
+.r-warn{background:var(--amber-bg);border:1px solid var(--amber-border);color:var(--amber)}
+.r-bad{background:var(--red-bg);border:1px solid var(--red-border);color:var(--red)}
+.search-bar{display:flex;gap:10px;margin-bottom:16px;align-items:center}
+.search-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:8px 14px;color:var(--text);font-size:12px;outline:none}
+.search-input:focus{border-color:var(--accent)}
+.search-input::placeholder{color:var(--text3)}
+.alert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-bottom:20px}
+.alert-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius2);padding:14px 16px;border-left:3px solid transparent}
+.alert-card.high{border-left-color:var(--red)}
+.alert-card.medium{border-left-color:var(--amber)}
+.alert-card.low-a{border-left-color:var(--green)}
+.alert-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px}
+.alert-meta{display:flex;gap:10px;flex-wrap:wrap}
+.alert-item{font-size:10px;color:var(--text3)}
+.alert-item span{color:var(--text2);font-weight:600}
+.prog-wrap{height:4px;background:var(--bg3);border-radius:99px;overflow:hidden;margin-top:4px}
+.prog-bar{height:4px;border-radius:99px}
+.top10-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
 </style>
 </head>
 <body>
- 
-<div class="topbar">
-  <div class="logo">⚡ Financial Nerve Center</div>
-  <div class="topbar-center" id="page-heading">Executive Overview</div>
-  <div class="topbar-right">
-    <div id="sheet-status" class="sheet-status">⟳ Connecting...</div>
-    <div class="week-tabs">
-      <button class="wtab" onclick="setWeek('Week 2',this)">Week 2</button>
-      <button class="wtab" onclick="setWeek('Week 3',this)">Week 3</button>
-      <button class="wtab active" onclick="setWeek('Week 4',this)">Week 4</button>
+
+<aside class="sidebar">
+  <div class="sb-header">
+    <div class="sb-brand">
+      <div class="sb-dot"></div>
+      <div>
+        <div class="sb-name">Nexora Retail Solutions</div>
+        <div class="sb-sub">(Pvt.) Limited</div>
+      </div>
     </div>
-    <div class="live-pill"><div class="live-dot"></div>Live</div>
-    <div class="icon-btn" title="Refresh" onclick="fetchSheet()">↻</div>
+    <div class="sb-period">Financial Year<span>01 Jul 2024 – 30 Jun 2025</span></div>
   </div>
-</div>
- 
-<div class="layout">
-  <div class="sidebar">
-    <div class="nav-item active" onclick="goTo('overview',this,'Executive Overview')">
-      <span class="nav-icon">▦</span> Executive Overview
+  <nav class="sb-nav">
+    <div class="sb-section">Overview</div>
+    <button class="nav-item active" data-tab="overview" onclick="switchTab('overview',this)"><span class="nav-icon">◈</span> Executive Summary</button>
+    <div class="sb-section">Financials</div>
+    <button class="nav-item" data-tab="pl" onclick="switchTab('pl',this)"><span class="nav-icon">◉</span> Profit & Loss</button>
+    <div class="sb-section">Department Data</div>
+    <button class="nav-item" data-tab="stock" onclick="switchTab('stock',this)"><span class="nav-icon">▣</span> Stock in Trade</button>
+    <button class="nav-item" data-tab="payables" onclick="switchTab('payables',this)"><span class="nav-icon">▣</span> Trade & Other Payables</button>
+    <button class="nav-item" data-tab="tax" onclick="switchTab('tax',this)"><span class="nav-icon">▣</span> Tax & Advances</button>
+    <div class="sb-section">Analysis</div>
+    <button class="nav-item" data-tab="cash" onclick="switchTab('cash',this)"><span class="nav-icon">◈</span> Cash & Banks</button>
+    <button class="nav-item" data-tab="ratios" onclick="switchTab('ratios',this)"><span class="nav-icon">◈</span> Ratios</button>
+    <button class="nav-item" data-tab="yoy" onclick="switchTab('yoy',this)"><span class="nav-icon">◈</span> YoY Comparison</button>
+    <div class="sb-section">Client Analytics</div>
+    <button class="nav-item" data-tab="rev-ranked" onclick="switchTab('rev-ranked',this)"><span class="nav-icon">★</span> Revenue Ranked</button>
+    <button class="nav-item" data-tab="outstanding" onclick="switchTab('outstanding',this)"><span class="nav-icon">★</span> Outstanding & Days</button>
+    <button class="nav-item" data-tab="collection" onclick="switchTab('collection',this)"><span class="nav-icon">★</span> Collection Efficiency</button>
+    <button class="nav-item" data-tab="overdue" onclick="switchTab('overdue',this)"><span class="nav-icon">★</span> Overdue Alerts</button>
+    <button class="nav-item" data-tab="margin" onclick="switchTab('margin',this)"><span class="nav-icon">★</span> Margin per Client</button>
+    <button class="nav-item" data-tab="top10" onclick="switchTab('top10',this)"><span class="nav-icon">★</span> Top 10 / Bottom 10</button>
+    <div class="sb-section">Assets</div>
+    <button class="nav-item" data-tab="fixedassets" onclick="switchTab('fixedassets',this)"><span class="nav-icon">▣</span> Fixed Assets</button>
+    <button class="nav-item" data-tab="borrowings" onclick="switchTab('borrowings',this)"><span class="nav-icon">▣</span> Short-Term Borrowings</button>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-tag">LIVE</div>
+    <div class="sb-updated">FY2025 · 65 Clients<br>Updated: <span id="upd-time">—</span></div>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title" id="tb-title">Executive Summary</div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-breadcrumb" id="tb-sub">CFO Dashboard · FY2025</div>
     </div>
-    <div class="nav-item" onclick="goTo('profitability',this,'Client Profitability')">
-      <span class="nav-icon">◈</span> Client Profitability
-    </div>
-    <div class="nav-item" onclick="goTo('action',this,'Clients to Action')">
-      <span class="nav-icon">⚑</span> Clients to Action
-      <span class="nav-badge" id="nb-action">0</span>
-    </div>
-    <div class="nav-item" onclick="goTo('team',this,'Team Utilization')">
-      <span class="nav-icon">⊕</span> Team Utilization
-    </div>
-    <div class="nav-divider"></div>
-    <div class="nav-item" onclick="goTo('leakage',this,'Profit Leakages')">
-      <span class="nav-icon">◫</span> Profit Leakages
-    </div>
-    <div class="nav-item" onclick="goTo('invoices',this,'Overdue Invoices')">
-      <span class="nav-icon">◻</span> Overdue Invoices
-      <span class="nav-badge" id="nb-inv">0</span>
-    </div>
-    <div class="nav-item" onclick="goTo('cashflow',this,'Cash Flow')">
-      <span class="nav-icon">→</span> Cash Flow
-    </div>
-    <div class="nav-item" onclick="goTo('margins',this,'Margin Trends')">
-      <span class="nav-icon">◬</span> Margin Trends
-    </div>
-    <div class="nav-divider"></div>
-    <div class="nav-item" onclick="goTo('alerts',this,'Alerts Center')">
-      <span class="nav-icon">◉</span> Alerts Center
-      <span class="nav-badge amber" id="nb-alerts">0</span>
-    </div>
-    <div class="nav-bottom">
-      <div class="nav-item" onclick="goTo('settings',this,'Settings')">
-        <span class="nav-icon">⚙</span> Settings
-      </div>
+    <div class="topbar-right">
+      <div class="tb-pill">PKR · Millions</div>
+      <div class="tb-pill" id="tb-date">—</div>
+      <button class="tb-btn" onclick="refreshData()">↻ Refresh</button>
     </div>
   </div>
- 
-  <div class="main">
- 
-    <!-- EXECUTIVE OVERVIEW -->
-    <div class="section active" id="sec-overview">
-      <div class="page-header">
-        <div>
-          <div class="page-title-big">Executive Overview</div>
-          <div class="page-sub">Executive snapshot for CFO at a glance</div>
-        </div>
-        <div class="last-updated" id="last-updated">↻ Last updated: loading...</div>
-      </div>
-      <div class="kpi-row">
-        <div class="kcard"><div class="kcard-icon ki-green">$</div><div class="kcard-body"><div class="kcard-label">Total Revenue (This Week)</div><div class="kcard-value" id="ov-rev">—</div><div class="kcard-delta" id="ov-rev-d">↑ — vs last week</div></div></div>
-        <div class="kcard"><div class="kcard-icon ki-blue">%</div><div class="kcard-body"><div class="kcard-label">Gross Profit (This Week)</div><div class="kcard-value" id="ov-prf">—</div><div class="kcard-delta" id="ov-prf-d">↑ — vs last week</div></div></div>
-        <div class="kcard"><div class="kcard-icon ki-amber">∿</div><div class="kcard-body"><div class="kcard-label">Average Margin</div><div class="kcard-value" id="ov-mgn">—</div><div class="kcard-delta" id="ov-mgn-d">↑ — vs last week</div></div></div>
-        <div class="kcard"><div class="kcard-icon ki-red">!</div><div class="kcard-body"><div class="kcard-label">Overdue Invoices</div><div class="kcard-value" id="ov-ovd">—</div><div class="kcard-delta delta-nt" id="ov-ovd-d">invoices &gt; 14 days</div></div></div>
-        <div class="kcard"><div class="kcard-icon ki-purple">↓</div><div class="kcard-body"><div class="kcard-label">Low Margin Clients</div><div class="kcard-value" id="ov-low">—</div><div class="kcard-delta delta-nt">Below 30% margin</div></div></div>
-      </div>
-      <div class="g3">
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="panel-title-icon">!</span> Which Clients to Fire</div><span class="panel-badge pb-red">Loss Making</span></div>
-          <table><thead><tr><th>Client</th><th>Margin</th><th>Profit</th><th>Status</th><th>Action</th></tr></thead><tbody id="ov-fire"></tbody></table>
-          <div class="section-note" style="margin-top:10px">⚠ These clients are costing you money or near zero profits.</div>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="panel-title-icon">↗</span> Which Clients to Increase Pricing On</div><span class="panel-badge pb-green">Upsell</span></div>
-          <table><thead><tr><th>Client</th><th>Margin</th><th>Profit</th><th>Action</th></tr></thead><tbody id="ov-upsell"></tbody></table>
-          <div class="section-note" style="margin-top:10px">💡 Strong clients — you can increase pricing by 10–20%.</div>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="panel-title-icon">⊕</span> Team Members Underutilized</div><span class="panel-badge pb-amber">Review</span></div>
-          <table><thead><tr><th>Member</th><th>Bill Hrs</th><th>Cap Hrs</th><th>Util%</th><th>Status</th></tr></thead><tbody id="ov-team"></tbody></table>
-          <div class="section-note" style="margin-top:10px">⚡ Underutilized = higher cost per hour.</div>
-        </div>
-      </div>
-      <div class="g2">
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title"><span class="panel-title-icon">◫</span> Where Profit is Silently Leaking</div></div>
-          <table><thead><tr><th>Leakage Area</th><th>Details</th><th>Impact</th><th>Action</th></tr></thead><tbody id="ov-leak"></tbody></table>
-          <div class="leak-total"><span style="font-size:12px;color:var(--t2)">Total Profit Leakage (This Week)</span><span class="leak-amount" id="ov-leak-total">—</span></div>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title">◫ Margin % by Client</div></div>
-          <div id="ov-mbars"></div>
-        </div>
-      </div>
-      <div class="g3" style="align-items:start">
-        <div class="panel"><div class="panel-head"><div class="panel-title" style="color:var(--green)">▲ Most Profitable Client</div></div><div id="ov-best"></div></div>
-        <div class="panel"><div class="panel-head"><div class="panel-title" style="color:var(--red)">▼ Least Profitable Client</div></div><div id="ov-worst"></div></div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">↗ This Week Summary</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="ov-summary"></div></div>
-      </div>
-      <div class="panel"><div class="panel-head"><div class="panel-title">◉ Top Alerts This Week</div></div><div id="ov-alerts"></div></div>
-    </div>
- 
-    <!-- CLIENT PROFITABILITY -->
-    <div class="section" id="sec-profitability">
-      <div class="page-title-big">Client Profitability</div>
-      <div class="panel">
-        <div class="panel-head"><div class="panel-title">◈ All Clients — <span id="prof-wk">Week 4</span></div></div>
-        <table><thead><tr><th>Client</th><th>Revenue</th><th>Team Cost</th><th>Profit</th><th>Margin %</th><th>Hours</th><th>Member</th><th>Payment</th></tr></thead><tbody id="prof-tbody"></tbody></table>
-      </div>
-      <div class="g2">
-        <div class="panel"><div class="panel-head"><div class="panel-title">◫ Margin % by Client</div></div><div id="prof-bars"></div></div>
-        <div class="panel"><div class="panel-head"><div class="panel-title">◈ Revenue Split</div></div><div id="prof-rev-bars"></div></div>
-      </div>
-    </div>
- 
-    <!-- CLIENTS TO ACTION -->
-    <div class="section" id="sec-action">
-      <div class="page-title-big">Clients to Action</div>
-      <div class="g2">
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title" style="color:var(--red)">! Fire / Low Margin Clients</div><span class="panel-badge pb-red">Action Required</span></div>
-          <table><thead><tr><th>Client</th><th>Margin</th><th>Profit</th><th>Hours</th><th>Action</th></tr></thead><tbody id="act-fire"></tbody></table>
-        </div>
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title" style="color:var(--green)">↗ Increase Pricing On</div><span class="panel-badge pb-green">Opportunity</span></div>
-          <table><thead><tr><th>Client</th><th>Margin</th><th>Profit</th><th>Hours</th><th>Action</th></tr></thead><tbody id="act-upsell"></tbody></table>
-        </div>
-      </div>
-    </div>
- 
-    <!-- TEAM UTILIZATION -->
-    <div class="section" id="sec-team">
-      <div class="page-title-big">Team Utilization</div>
-      <div class="panel">
-        <div class="panel-head"><div class="panel-title">⊕ All Team Members</div></div>
-        <table><thead><tr><th>Member</th><th>Client</th><th>Billable Hrs</th><th>Capacity Hrs</th><th>Utilization %</th><th>Status</th></tr></thead><tbody id="team-tbody"></tbody></table>
-      </div>
-      <div class="panel"><div class="panel-head"><div class="panel-title">◫ Utilization Bars</div></div><div id="team-bars"></div></div>
-    </div>
- 
-    <!-- PROFIT LEAKAGES -->
-    <div class="section" id="sec-leakage">
-      <div class="page-title-big">Profit Leakages</div>
-      <div class="panel">
-        <div class="panel-head"><div class="panel-title">◫ Where Profit is Silently Leaking</div></div>
-        <table><thead><tr><th>Leakage Area</th><th>Details</th><th>Impact (This Week)</th><th>Action</th></tr></thead><tbody id="leak-tbody"></tbody></table>
-        <div class="leak-total"><span>Total Profit Leakage (This Week)</span><span class="leak-amount" id="leak-total">—</span></div>
-      </div>
-    </div>
- 
-    <!-- OVERDUE INVOICES -->
-    <div class="section" id="sec-invoices">
-      <div class="page-title-big">Overdue Invoices</div>
-      <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
-        <div class="kcard"><div class="kcard-icon ki-blue">$</div><div class="kcard-body"><div class="kcard-label">Total Invoiced</div><div class="kcard-value" id="inv-tot">—</div><div class="kcard-delta delta-nt">This week</div></div></div>
-        <div class="kcard"><div class="kcard-icon ki-green">✓</div><div class="kcard-body"><div class="kcard-label">Collected</div><div class="kcard-value" id="inv-paid">—</div><div class="kcard-delta delta-up">↑ Paid</div></div></div>
-        <div class="kcard"><div class="kcard-icon ki-amber">○</div><div class="kcard-body"><div class="kcard-label">Pending</div><div class="kcard-value" id="inv-pend">—</div><div class="kcard-delta delta-nt">Awaiting</div></div></div>
-        <div class="kcard"><div class="kcard-icon ki-red">!</div><div class="kcard-body"><div class="kcard-label">Overdue</div><div class="kcard-value" id="inv-ovd">—</div><div class="kcard-delta delta-dn">↓ Action needed</div></div></div>
-      </div>
-      <div class="panel">
-        <div class="panel-head"><div class="panel-title">◻ Invoice Details</div></div>
-        <table><thead><tr><th>Client</th><th>Amount</th><th>Member</th><th>Due Date</th><th>Days Overdue</th><th>Status</th><th>Action</th></tr></thead><tbody id="inv-tbody"></tbody></table>
-      </div>
-    </div>
- 
-    <!-- CASH FLOW -->
-    <div class="section" id="sec-cashflow">
-      <div class="page-title-big">Cash Flow</div>
-      <div class="g3">
-        <div class="kcard"><div class="kcard-icon ki-green">↑</div><div class="kcard-body"><div class="kcard-label">Total Collected</div><div class="kcard-value" id="cf-in">—</div><div class="kcard-delta delta-up">↑ This week</div></div></div>
-        <div class="kcard"><div class="kcard-icon ki-red">↓</div><div class="kcard-body"><div class="kcard-label">Total Team Cost</div><div class="kcard-value" id="cf-out">—</div><div class="kcard-delta delta-dn">↓ Expenses</div></div></div>
-        <div class="kcard"><div class="kcard-icon ki-blue">≈</div><div class="kcard-body"><div class="kcard-label">Net Cash Flow</div><div class="kcard-value" id="cf-net">—</div><div class="kcard-delta delta-up">↑ Net this week</div></div></div>
-      </div>
-      <div class="panel"><div class="panel-head"><div class="panel-title">→ Cash Flow by Client</div></div><div id="cf-bars"></div></div>
-    </div>
- 
-    <!-- MARGIN TRENDS -->
-    <div class="section" id="sec-margins">
-      <div class="page-title-big">Margin Trends</div>
-      <div class="panel"><div class="panel-head"><div class="panel-title">◬ Margin % — All Weeks Comparison</div></div><div id="trend-table-wrap"></div></div>
-      <div class="panel"><div class="panel-head"><div class="panel-title">◫ Margin % by Client (This Week)</div></div><div id="trend-bars"></div></div>
-    </div>
- 
-    <!-- ALERTS CENTER -->
-    <div class="section" id="sec-alerts">
-      <div class="page-title-big">Alerts Center</div>
-      <div class="g2">
-        <div class="panel"><div class="panel-head"><div class="panel-title" style="color:var(--red)">◉ Critical Alerts</div></div><div id="alert-critical"></div></div>
-        <div class="panel"><div class="panel-head"><div class="panel-title" style="color:var(--amber)">◉ Warnings</div></div><div id="alert-warn"></div></div>
-      </div>
-      <div class="panel"><div class="panel-head"><div class="panel-title" style="color:var(--green)">◉ All Clear</div></div><div id="alert-ok"></div></div>
-    </div>
- 
-    <!-- SETTINGS -->
-    <div class="section" id="sec-settings">
-      <div class="page-title-big">Settings</div>
-      <div class="panel">
-        <div class="panel-head"><div class="panel-title">⚙ Google Sheets Connection</div></div>
-        <div style="font-size:13px;color:var(--t2);line-height:2.2">
-          <p style="color:var(--green);margin-bottom:12px">✓ Sheet ID is configured. Dashboard auto-refreshes every 60 seconds.</p>
-          <p><strong style="color:var(--t1)">Sheet ID:</strong> <code style="background:var(--bg3);padding:2px 8px;border-radius:4px;color:var(--blue)">1Zmf7Aluod8la9CwKfgEpuCwDXtswbHUDgm5D2QVp_E0</code></p>
-          <p style="margin-top:8px"><strong style="color:var(--t1)">Sheet Name:</strong> <code style="background:var(--bg3);padding:2px 8px;border-radius:4px;color:var(--blue)">Sheet1</code></p>
-          <p style="margin-top:8px"><strong style="color:var(--t1)">Refresh Interval:</strong> Every 60 seconds</p>
-        </div>
-      </div>
-    </div>
- 
+
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview',this)">Summary</button>
+    <button class="tab-btn" data-tab="pl" onclick="switchTab('pl',this)">P&L</button>
+    <button class="tab-btn" data-tab="stock" onclick="switchTab('stock',this)">Stock</button>
+    <button class="tab-btn" data-tab="payables" onclick="switchTab('payables',this)">Payables</button>
+    <button class="tab-btn" data-tab="tax" onclick="switchTab('tax',this)">Tax</button>
+    <button class="tab-btn" data-tab="cash" onclick="switchTab('cash',this)">Banks</button>
+    <button class="tab-btn" data-tab="ratios" onclick="switchTab('ratios',this)">Ratios</button>
+    <button class="tab-btn" data-tab="yoy" onclick="switchTab('yoy',this)">YoY</button>
+    <button class="tab-btn" data-tab="rev-ranked" onclick="switchTab('rev-ranked',this)">Rev. Ranked</button>
+    <button class="tab-btn" data-tab="outstanding" onclick="switchTab('outstanding',this)">Outstanding</button>
+    <button class="tab-btn" data-tab="collection" onclick="switchTab('collection',this)">Collection</button>
+    <button class="tab-btn" data-tab="overdue" onclick="switchTab('overdue',this)">Overdue ⚠</button>
+    <button class="tab-btn" data-tab="margin" onclick="switchTab('margin',this)">Margin</button>
+    <button class="tab-btn" data-tab="top10" onclick="switchTab('top10',this)">Top/Bot 10</button>
+    <button class="tab-btn" data-tab="fixedassets" onclick="switchTab('fixedassets',this)">Fixed Assets</button>
+    <button class="tab-btn" data-tab="borrowings" onclick="switchTab('borrowings',this)">Borrowings</button>
   </div>
-</div>
- 
+
+  <div class="content">
+
+    <!-- ═══ OVERVIEW ═══ -->
+    <div class="tab-panel active" id="tab-overview">
+      <div class="banner">
+        <div class="banner-co"><div class="banner-co-name">Nexora Retail Solutions (Pvt.) Ltd</div><div class="banner-co-sub">CFO Executive Dashboard · FY2025</div></div>
+        <div class="banner-sep"></div>
+        <div class="banner-stat"><div class="banner-stat-label">Revenue</div><div class="banner-stat-value">Rs. 3,142M</div><div class="banner-stat-chg up">▲ 14.2% YoY</div></div>
+        <div class="banner-sep"></div>
+        <div class="banner-stat"><div class="banner-stat-label">Gross Profit</div><div class="banner-stat-value">Rs. 503M</div><div class="banner-stat-chg up">▲ 9.7%</div></div>
+        <div class="banner-sep"></div>
+        <div class="banner-stat"><div class="banner-stat-label">Net Profit</div><div class="banner-stat-value">Rs. 71M</div><div class="banner-stat-chg up">▲ 4.4%</div></div>
+        <div class="banner-sep"></div>
+        <div class="banner-stat"><div class="banner-stat-label">Client Revenue</div><div class="banner-stat-value">Rs. 3,914M</div><div class="banner-stat-chg up">65 Clients</div></div>
+        <div class="banner-sep"></div>
+        <div class="banner-stat"><div class="banner-stat-label">Outstanding AR</div><div class="banner-stat-value">Rs. 284M</div><div class="banner-stat-chg down">▼ 86.2% Eff.</div></div>
+      </div>
+      <div class="sec-title">Key Performance Indicators</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">Net Revenue</div><div class="kpi-value">3,142M</div><div class="kpi-sub">FY2025 Annual</div><div class="kpi-chg up">▲ 14.2% vs FY2024</div></div>
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">Gross Profit</div><div class="kpi-value">503M</div><div class="kpi-sub">Margin 16.0%</div><div class="kpi-chg up">▲ 9.7%</div></div>
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">Net Profit</div><div class="kpi-value">71M</div><div class="kpi-sub">Margin 2.26%</div><div class="kpi-chg up">▲ 4.4%</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">Cash & Bank (Net)</div><div class="kpi-value">−2,814M</div><div class="kpi-sub">Overdraft position</div><div class="kpi-chg flat">Overdrawn</div></div>
+        <div class="kpi"><div class="kpi-accent cyan"></div><div class="kpi-label">Total Client Rev.</div><div class="kpi-value">3,914M</div><div class="kpi-sub">65 active clients</div><div class="kpi-chg up">FY2025</div></div>
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">Total Collected</div><div class="kpi-value">3,374M</div><div class="kpi-sub">86.2% efficiency</div><div class="kpi-chg up">▲ Collection</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Outstanding AR</div><div class="kpi-value">284M</div><div class="kpi-sub">19 clients with AR</div><div class="kpi-chg down">Attention needed</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Trade Payables</div><div class="kpi-value">1,782M</div><div class="kpi-sub">Current liability</div><div class="kpi-chg down">▲ 11.4%</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">ST Borrowings</div><div class="kpi-value">2,610M</div><div class="kpi-sub">Shareholder loans</div><div class="kpi-chg down">▲ 8.7%</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-title">Revenue · Gross Profit · Net Profit <span class="card-tag">Rs. M</span></div><div class="chart-box"><canvas id="c-overview-pl"></canvas></div></div>
+        <div class="card"><div class="card-title">Client Revenue — Top 5 <span class="card-tag">Rs. M</span></div><div class="chart-box"><canvas id="c-overview-clients"></canvas></div></div>
+      </div>
+      <div class="sec-title">Ratios at a Glance</div>
+      <div class="ratio-grid" style="margin-bottom:20px">
+        <div class="ratio-card"><div class="ratio-val">1.07x</div><div class="ratio-lbl">Current Ratio</div><div class="ratio-status r-warn">Tight</div></div>
+        <div class="ratio-card"><div class="ratio-val">0.17x</div><div class="ratio-lbl">Quick Ratio</div><div class="ratio-status r-bad">Low</div></div>
+        <div class="ratio-card"><div class="ratio-val">16.0%</div><div class="ratio-lbl">Gross Margin</div><div class="ratio-status r-warn">Moderate</div></div>
+        <div class="ratio-card"><div class="ratio-val">2.26%</div><div class="ratio-lbl">Net Margin</div><div class="ratio-status r-warn">Thin</div></div>
+        <div class="ratio-card"><div class="ratio-val">2.31x</div><div class="ratio-lbl">Debt-to-Equity</div><div class="ratio-status r-bad">High</div></div>
+        <div class="ratio-card"><div class="ratio-val">86.2%</div><div class="ratio-lbl">Collection Efficiency</div><div class="ratio-status r-warn">Watch</div></div>
+      </div>
+    </div>
+
+    <!-- ═══ P&L ═══ -->
+    <div class="tab-panel" id="tab-pl">
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">Net Revenue</div><div class="kpi-value">3,142M</div><div class="kpi-chg up">▲ 14.2%</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">COGS</div><div class="kpi-value">2,639M</div><div class="kpi-sub">84.0% of revenue</div><div class="kpi-chg down">▲ 15.1%</div></div>
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">Gross Profit</div><div class="kpi-value">503M</div><div class="kpi-sub">Margin 16.0%</div><div class="kpi-chg up">▲ 9.7%</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">Operating Expenses</div><div class="kpi-value">388M</div><div class="kpi-sub">Admin + selling</div><div class="kpi-chg flat">—</div></div>
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">EBIT</div><div class="kpi-value">115M</div><div class="kpi-sub">EBIT margin 3.66%</div><div class="kpi-chg up">▲ 7.1%</div></div>
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">Net Profit (PAT)</div><div class="kpi-value">71M</div><div class="kpi-sub">Margin 2.26%</div><div class="kpi-chg up">▲ 4.4%</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-title">P&L Breakdown <span class="card-tag">Rs. M</span></div><div class="chart-box lg"><canvas id="c-pl-bar"></canvas></div></div>
+        <div class="card"><div class="card-title">Margin Trend <span class="card-tag">%</span></div><div class="chart-box lg"><canvas id="c-pl-margins"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Income Statement Detail</div>
+        <table class="fin-table">
+          <thead><tr><th>Line Item</th><th>FY2025</th><th>FY2024</th><th>Change</th></tr></thead>
+          <tbody>
+            <tr><td>Net Revenue</td><td class="num">3,142,000,000</td><td class="num">2,750,000,000</td><td><span class="pill up">▲ 14.2%</span></td></tr>
+            <tr><td>Cost of Goods Sold</td><td class="num">(2,639,000,000)</td><td class="num">(2,293,000,000)</td><td><span class="pill down">▲ 15.1%</span></td></tr>
+            <tr class="total"><td>Gross Profit</td><td class="num">503,000,000</td><td class="num">458,000,000</td><td><span class="pill up">▲ 9.7%</span></td></tr>
+            <tr><td>Admin Expenses</td><td class="num">(241,000,000)</td><td class="num">(214,000,000)</td><td><span class="pill down">▲ 12.6%</span></td></tr>
+            <tr><td>Selling & Dist. Expenses</td><td class="num">(147,000,000)</td><td class="num">(139,000,000)</td><td><span class="pill down">▲ 5.8%</span></td></tr>
+            <tr class="total"><td>Operating Profit (EBIT)</td><td class="num">115,000,000</td><td class="num">107,500,000</td><td><span class="pill up">▲ 7.1%</span></td></tr>
+            <tr><td>Finance Costs</td><td class="num">(28,500,000)</td><td class="num">(22,100,000)</td><td><span class="pill down">▲ 29.0%</span></td></tr>
+            <tr><td>Other Income</td><td class="num">9,700,000</td><td class="num">8,100,000</td><td><span class="pill up">▲ 19.8%</span></td></tr>
+            <tr><td>Net Profit Before Tax</td><td class="num">96,200,000</td><td class="num">93,500,000</td><td><span class="pill up">▲ 2.9%</span></td></tr>
+            <tr><td>Taxation</td><td class="num">(25,200,000)</td><td class="num">(25,500,000)</td><td><span class="pill up">▼ 1.2%</span></td></tr>
+            <tr class="total"><td>Net Profit After Tax</td><td class="num">71,000,000</td><td class="num">68,000,000</td><td><span class="pill up">▲ 4.4%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ STOCK ═══ -->
+    <div class="tab-panel" id="tab-stock">
+      <div class="sec-title">Stock in Trade — Department Breakdown</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent cyan"></div><div class="kpi-label">Total Stock in Trade</div><div class="kpi-value">8,140M</div><div class="kpi-sub">FY2025</div><div class="kpi-chg up">▲ 6.1% YoY</div></div>
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">Finished Goods</div><div class="kpi-value">3,870M</div><div class="kpi-sub">47.5%</div><div class="kpi-chg up">▲ 7.3%</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">Raw Material</div><div class="kpi-value">3,140M</div><div class="kpi-sub">38.6%</div><div class="kpi-chg up">▲ 4.8%</div></div>
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">Work in Process</div><div class="kpi-value">720M</div><div class="kpi-sub">8.8%</div><div class="kpi-chg flat">— Stable</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Stores & Spares</div><div class="kpi-value">410M</div><div class="kpi-sub">5.0%</div><div class="kpi-chg down">▼ 0.9%</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-title">Category Breakdown <span class="card-tag">Rs. M</span></div><div id="stock-bk"></div></div>
+        <div class="card"><div class="card-title">Composition <span class="card-tag">%</span></div><div class="chart-box"><canvas id="c-stock-pie"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-bottom:20px"><div class="card-title">YoY Stock Movement</div><div class="chart-box"><canvas id="c-stock-yoy"></canvas></div></div>
+    </div>
+
+    <!-- ═══ PAYABLES ═══ -->
+    <div class="tab-panel" id="tab-payables">
+      <div class="sec-title">Trade & Other Payables</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Total Payables</div><div class="kpi-value">1,782M</div><div class="kpi-chg down">▲ 11.4%</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Local Creditors</div><div class="kpi-value">920M</div><div class="kpi-sub">51.6%</div><div class="kpi-chg down">▲ 10.2%</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">Contract Liabilities</div><div class="kpi-value">355M</div><div class="kpi-sub">19.9%</div><div class="kpi-chg down">▲ 14.1%</div></div>
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">Foreign Creditors</div><div class="kpi-value">310M</div><div class="kpi-sub">17.4%</div><div class="kpi-chg flat">▲ 3.3%</div></div>
+        <div class="kpi"><div class="kpi-accent cyan"></div><div class="kpi-label">Accrued Expenses</div><div class="kpi-value">197M</div><div class="kpi-sub">11.1%</div><div class="kpi-chg up">▲ 6.5%</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-title">Payables Breakdown<span class="card-tag">Rs. M</span></div><div id="payables-bk"></div></div>
+        <div class="card"><div class="card-title">Composition<span class="card-tag">%</span></div><div class="chart-box"><canvas id="c-pay-pie"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-bottom:20px"><div class="card-title">Payables Aging Estimate<span class="card-tag">Rs. M</span></div><div class="chart-box"><canvas id="c-pay-aging"></canvas></div></div>
+    </div>
+
+    <!-- ═══ TAX ═══ -->
+    <div class="tab-panel" id="tab-tax">
+      <div class="sec-title">Tax & Advance Receivables</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">Total Tax & Advances</div><div class="kpi-value">634M</div><div class="kpi-chg up">▲ 7.4%</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">Advance Income Tax</div><div class="kpi-value">218M</div><div class="kpi-sub">34.4%</div><div class="kpi-chg up">▲ 9.1%</div></div>
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">Sales Tax Receivable</div><div class="kpi-value">158M</div><div class="kpi-sub">24.9%</div><div class="kpi-chg up">▲ 5.3%</div></div>
+        <div class="kpi"><div class="kpi-accent cyan"></div><div class="kpi-label">Advances to Suppliers</div><div class="kpi-value">196M</div><div class="kpi-sub">30.9%</div><div class="kpi-chg up">▲ 6.5%</div></div>
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">Prepaid Expenses</div><div class="kpi-value">62M</div><div class="kpi-sub">9.8%</div><div class="kpi-chg flat">▲ 2.3%</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-title">Tax & Advances Breakdown<span class="card-tag">Rs. M</span></div><div id="tax-bk"></div></div>
+        <div class="card"><div class="card-title">Composition<span class="card-tag">%</span></div><div class="chart-box"><canvas id="c-tax-pie"></canvas></div></div>
+      </div>
+    </div>
+
+    <!-- ═══ CASH ═══ -->
+    <div class="tab-panel" id="tab-cash">
+      <div class="sec-title">Cash & Bank Accounts</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Net Bank Position</div><div class="kpi-value">−2,814M</div><div class="kpi-chg down">Overdraft</div></div>
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">Positive Balances</div><div class="kpi-value">+1,348M</div><div class="kpi-sub">2 accounts</div><div class="kpi-chg up">Liquid</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Overdrawn</div><div class="kpi-value">−4,162M</div><div class="kpi-sub">4 accounts</div><div class="kpi-chg down">Attention</div></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">Bank Account Balances</div>
+        <div class="bank-row"><div class="bank-badge">NB</div><div class="bank-name">National Bank — AC 4412</div><div class="bank-amount pos">+Rs. 1,284,720</div></div>
+        <div class="bank-row"><div class="bank-badge">IB</div><div class="bank-name">Islamic Finance Bank — AC 7721</div><div class="bank-amount neg">−Rs. 2,418,340,500</div></div>
+        <div class="bank-row"><div class="bank-badge">UB</div><div class="bank-name">United Commercial Bank — AC 9103</div><div class="bank-amount pos">+Rs. 62,840,190</div></div>
+        <div class="bank-row"><div class="bank-badge">CB</div><div class="bank-name">Capital Bank — AC 3356</div><div class="bank-amount neg">−Rs. 74,218,900</div></div>
+        <div class="bank-row"><div class="bank-badge">MB</div><div class="bank-name">Metro Finance — AC 6602</div><div class="bank-amount neg">−Rs. 11,430,000</div></div>
+        <div class="bank-row"><div class="bank-badge">FB</div><div class="bank-name">First Alliance Bank</div><div class="bank-amount neg">−Rs. 384,220,410</div></div>
+      </div>
+      <div class="card"><div class="card-title">Bank Balances Chart<span class="card-tag">Rs.</span></div><div class="chart-box"><canvas id="c-banks"></canvas></div></div>
+    </div>
+
+    <!-- ═══ RATIOS ═══ -->
+    <div class="tab-panel" id="tab-ratios">
+      <div class="sec-title">Financial Ratios</div>
+      <div class="grid-3">
+        <div class="card"><div class="card-title">Liquidity</div>
+          <div class="ratio-card" style="margin-bottom:10px"><div class="ratio-val">1.07x</div><div class="ratio-lbl">Current Ratio</div><div class="ratio-status r-warn">⚠ Tight</div></div>
+          <div class="ratio-card"><div class="ratio-val">0.17x</div><div class="ratio-lbl">Quick Ratio</div><div class="ratio-status r-bad">Low</div></div>
+        </div>
+        <div class="card"><div class="card-title">Profitability</div>
+          <div class="ratio-card" style="margin-bottom:10px"><div class="ratio-val">16.0%</div><div class="ratio-lbl">Gross Profit Margin</div><div class="ratio-status r-warn">Moderate</div></div>
+          <div class="ratio-card"><div class="ratio-val">2.26%</div><div class="ratio-lbl">Net Profit Margin</div><div class="ratio-status r-warn">Thin</div></div>
+        </div>
+        <div class="card"><div class="card-title">Leverage</div>
+          <div class="ratio-card" style="margin-bottom:10px"><div class="ratio-val">2.31x</div><div class="ratio-lbl">Debt-to-Equity</div><div class="ratio-status r-bad">High</div></div>
+          <div class="ratio-card"><div class="ratio-val">Rs. 218M</div><div class="ratio-lbl">Working Capital</div><div class="ratio-status r-ok">Positive</div></div>
+        </div>
+      </div>
+      <div class="card"><div class="card-title">Ratio Trends FY2023–2025</div><div class="chart-box lg"><canvas id="c-ratio-trend"></canvas></div></div>
+    </div>
+
+    <!-- ═══ YOY ═══ -->
+    <div class="tab-panel" id="tab-yoy">
+      <div class="sec-title">Year-on-Year Comparison</div>
+      <div class="card" style="margin-bottom:14px"><div class="card-title">Revenue & Profit Trend <span class="card-tag">FY2023–2025</span></div><div class="chart-box lg"><canvas id="c-yoy-trend"></canvas></div></div>
+      <div class="card">
+        <div class="card-title">YoY Summary</div>
+        <table class="fin-table">
+          <thead><tr><th>Metric</th><th>FY2025</th><th>FY2024</th><th>FY2023</th><th>YoY</th></tr></thead>
+          <tbody>
+            <tr><td>Revenue</td><td class="num">Rs. 3,142M</td><td class="num">Rs. 2,750M</td><td class="num">Rs. 2,410M</td><td><span class="pill up">▲ 14.2%</span></td></tr>
+            <tr><td>Gross Profit</td><td class="num">Rs. 503M</td><td class="num">Rs. 458M</td><td class="num">Rs. 411M</td><td><span class="pill up">▲ 9.7%</span></td></tr>
+            <tr><td>Net Profit</td><td class="num">Rs. 71M</td><td class="num">Rs. 68M</td><td class="num">Rs. 59M</td><td><span class="pill up">▲ 4.4%</span></td></tr>
+            <tr><td>Total Assets</td><td class="num">Rs. 8,140M</td><td class="num">Rs. 7,621M</td><td class="num">Rs. 7,082M</td><td><span class="pill up">▲ 6.8%</span></td></tr>
+            <tr><td>Trade Payables</td><td class="num">Rs. 1,782M</td><td class="num">Rs. 1,600M</td><td class="num">Rs. 1,428M</td><td><span class="pill down">▲ 11.4%</span></td></tr>
+            <tr><td>ST Borrowings</td><td class="num">Rs. 2,610M</td><td class="num">Rs. 2,401M</td><td class="num">Rs. 2,180M</td><td><span class="pill down">▲ 8.7%</span></td></tr>
+            <tr><td>Gross Margin %</td><td class="num">16.0%</td><td class="num">16.6%</td><td class="num">17.1%</td><td><span class="pill down">▼ 0.6pp</span></td></tr>
+            <tr><td>Net Margin %</td><td class="num">2.26%</td><td class="num">2.47%</td><td class="num">2.45%</td><td><span class="pill down">▼ 0.2pp</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ CLIENT: REVENUE RANKED ═══ -->
+    <div class="tab-panel" id="tab-rev-ranked">
+      <div class="sec-title">Per Client Revenue — Ranked FY2025</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">Total Client Revenue</div><div class="kpi-value">3,914M</div><div class="kpi-sub">FY2025</div><div class="kpi-chg up">65 Clients</div></div>
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">#1 Client</div><div class="kpi-value">528M</div><div class="kpi-sub">Alpha Distributors</div><div class="kpi-chg up">13.49% share</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">Top 3 Concentration</div><div class="kpi-value">36.4%</div><div class="kpi-sub">of total revenue</div><div class="kpi-chg flat">Concentrated</div></div>
+        <div class="kpi"><div class="kpi-accent cyan"></div><div class="kpi-label">Top 10 Concentration</div><div class="kpi-value">67.2%</div><div class="kpi-sub">of total revenue</div><div class="kpi-chg flat">Watch</div></div>
+      </div>
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card"><div class="card-title">Top 10 Clients by Revenue <span class="card-tag">Rs. M</span></div><div class="chart-box lg"><canvas id="c-rev-top10"></canvas></div></div>
+        <div class="card"><div class="card-title">Revenue Concentration <span class="card-tag">Top 10 vs Rest</span></div><div class="chart-box lg"><canvas id="c-rev-conc"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">All 65 Clients — Revenue Ranked <span class="card-tag">FY2025</span></div>
+        <div class="search-bar"><input class="search-input" id="rev-search" placeholder="Search client name…" oninput="filterTable('rev-tbl',this.value,1)"></div>
+        <table class="fin-table" id="rev-tbl">
+          <thead><tr><th>Rank</th><th>Client Name</th><th>Revenue (PKR)</th><th>% of Total</th><th>Cumulative %</th></tr></thead>
+          <tbody id="rev-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ CLIENT: OUTSTANDING & DAYS ═══ -->
+    <div class="tab-panel" id="tab-outstanding">
+      <div class="sec-title">Per Client Outstanding AR with Estimated Days</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Total Outstanding AR</div><div class="kpi-value">284M</div><div class="kpi-sub">19 clients</div><div class="kpi-chg down">Requires action</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Highest AR</div><div class="kpi-value">51.2M</div><div class="kpi-sub">Seasonal Buyers</div><div class="kpi-chg down">122 days DSO</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">HIGH Risk Clients</div><div class="kpi-value">10</div><div class="kpi-sub">DSO > 90 days</div><div class="kpi-chg down">Urgent</div></div>
+        <div class="kpi"><div class="kpi-accent flat"></div><div class="kpi-label">MEDIUM Risk Clients</div><div class="kpi-value">5</div><div class="kpi-sub">DSO 45–90 days</div><div class="kpi-chg flat">Monitor</div></div>
+      </div>
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card"><div class="card-title">Outstanding AR by Client (Top 10) <span class="card-tag">Rs. M</span></div><div class="chart-box lg"><canvas id="c-outstanding-bar"></canvas></div></div>
+        <div class="card"><div class="card-title">DSO by Client <span class="card-tag">Days</span></div><div class="chart-box lg"><canvas id="c-dso-bar"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Outstanding AR Detail <span class="card-tag">DSO-based estimation</span></div>
+        <div class="search-bar"><input class="search-input" id="out-search" placeholder="Search client…" oninput="filterTable('out-tbl',this.value,1)"></div>
+        <table class="fin-table" id="out-tbl">
+          <thead><tr><th>#</th><th>Client Name</th><th>Revenue (PKR)</th><th>Collected (PKR)</th><th>Outstanding (PKR)</th><th>DSO (Days)</th><th>Risk</th></tr></thead>
+          <tbody id="out-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ CLIENT: COLLECTION EFFICIENCY ═══ -->
+    <div class="tab-panel" id="tab-collection">
+      <div class="sec-title">Collection Efficiency % per Client</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">Company Avg. Efficiency</div><div class="kpi-value">86.2%</div><div class="kpi-sub">Collected / Billed</div><div class="kpi-chg flat">FY2025</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">POOR (&lt;70%)</div><div class="kpi-value">24</div><div class="kpi-sub">clients</div><div class="kpi-chg down">Below 70%</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">WATCH (70–90%)</div><div class="kpi-value">12</div><div class="kpi-sub">clients</div><div class="kpi-chg flat">Monitor</div></div>
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">GOOD (90%+)</div><div class="kpi-value">29</div><div class="kpi-sub">clients</div><div class="kpi-chg up">Healthy</div></div>
+      </div>
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card"><div class="card-title">Collection Status Distribution <span class="card-tag">Clients</span></div><div class="chart-box"><canvas id="c-coll-pie"></canvas></div></div>
+        <div class="card"><div class="card-title">Bottom 10 — Worst Efficiency <span class="card-tag">%</span></div><div class="chart-box"><canvas id="c-coll-worst"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">All Clients — Collection Efficiency <span class="card-tag">Sorted by Efficiency</span></div>
+        <div class="search-bar"><input class="search-input" id="coll-search" placeholder="Search client…" oninput="filterTable('coll-tbl',this.value,1)"></div>
+        <table class="fin-table" id="coll-tbl">
+          <thead><tr><th>Rank</th><th>Client Name</th><th>Revenue (PKR)</th><th>Collected (PKR)</th><th>Efficiency %</th><th>Status</th></tr></thead>
+          <tbody id="coll-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ CLIENT: OVERDUE ALERTS ═══ -->
+    <div class="tab-panel" id="tab-overdue">
+      <div class="sec-title">Overdue Alerts — Clients Requiring Collection Action</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">🔴 HIGH Risk</div><div class="kpi-value">10</div><div class="kpi-sub">DSO &gt; 90 days</div><div class="kpi-chg down">Urgent</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">🟡 MEDIUM Risk</div><div class="kpi-value">5</div><div class="kpi-sub">DSO 45–90 days</div><div class="kpi-chg flat">Monitor</div></div>
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">🟢 LOW Risk</div><div class="kpi-value">4</div><div class="kpi-sub">DSO &lt; 45 days</div><div class="kpi-chg up">OK</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Total At-Risk AR</div><div class="kpi-value">284M</div><div class="kpi-sub">Across 19 clients</div><div class="kpi-chg down">Exposure</div></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">🔴 HIGH Risk — Immediate Action Required</div>
+        <div class="alert-grid" id="high-alerts"></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">🟡 MEDIUM Risk — Monitor Closely</div>
+        <div class="alert-grid" id="medium-alerts"></div>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-title">🟢 LOW Risk</div>
+        <div class="alert-grid" id="low-alerts"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Outstanding AR vs DSO — At-Risk Clients <span class="card-tag">Rs. M</span></div>
+        <div class="chart-box xl"><canvas id="c-overdue-chart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- ═══ CLIENT: MARGIN PER CLIENT ═══ -->
+    <div class="tab-panel" id="tab-margin">
+      <div class="sec-title">Estimated Gross Margin per Client</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">Company Gross Margin</div><div class="kpi-value">10.02%</div><div class="kpi-sub">Applied uniformly</div><div class="kpi-chg flat">Estimate</div></div>
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">Total Est. Gross Profit</div><div class="kpi-value">392M</div><div class="kpi-sub">All 65 clients</div><div class="kpi-chg up">FY2025</div></div>
+        <div class="kpi"><div class="kpi-accent green"></div><div class="kpi-label">Highest GP Client</div><div class="kpi-value">52.9M</div><div class="kpi-sub">Alpha Distributors</div><div class="kpi-chg up">Top contributor</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">Note</div><div class="kpi-value">10.0%</div><div class="kpi-sub">Uniform margin est.</div><div class="kpi-chg flat">See note</div></div>
+      </div>
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card"><div class="card-title">Top 10 — Est. Gross Profit <span class="card-tag">Rs. M</span></div><div class="chart-box lg"><canvas id="c-margin-bar"></canvas></div></div>
+        <div class="card"><div class="card-title">Revenue vs Est. GP — Top 10 <span class="card-tag">Rs. M</span></div><div class="chart-box lg"><canvas id="c-margin-compare"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Margin per Client — Full List <span class="card-tag">Uniform 10.02% applied</span></div>
+        <div class="search-bar"><input class="search-input" id="margin-search" placeholder="Search client…" oninput="filterTable('margin-tbl',this.value,1)"></div>
+        <table class="fin-table" id="margin-tbl">
+          <thead><tr><th>Rank</th><th>Client Name</th><th>Revenue (PKR)</th><th>Est. COGS (PKR)</th><th>Est. Gross Profit (PKR)</th><th>GM %</th></tr></thead>
+          <tbody id="margin-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ CLIENT: TOP 10 / BOTTOM 10 ═══ -->
+    <div class="tab-panel" id="tab-top10">
+      <div class="sec-title">Top 10 & Bottom 10 Clients by Revenue FY2025</div>
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card"><div class="card-title">Top 10 — Revenue <span class="card-tag">Rs. M</span></div><div class="chart-box lg"><canvas id="c-top10-bar"></canvas></div></div>
+        <div class="card"><div class="card-title">Bottom 10 — Revenue <span class="card-tag">Rs. M</span></div><div class="chart-box lg"><canvas id="c-bot10-bar"></canvas></div></div>
+      </div>
+      <div class="top10-grid">
+        <div class="card">
+          <div class="card-title">🏆 Top 10 Clients</div>
+          <table class="fin-table">
+            <thead><tr><th>#</th><th>Client</th><th>Revenue (PKR)</th><th>AR (PKR)</th><th>Eff. %</th></tr></thead>
+            <tbody id="top10-tbody"></tbody>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">📉 Bottom 10 Clients</div>
+          <table class="fin-table">
+            <thead><tr><th>#</th><th>Client</th><th>Revenue (PKR)</th><th>AR (PKR)</th><th>Eff. %</th></tr></thead>
+            <tbody id="bot10-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ FIXED ASSETS ═══ -->
+    <div class="tab-panel" id="tab-fixedassets">
+      <div class="sec-title">Fixed Assets</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">Total NCA</div><div class="kpi-value">468M</div><div class="kpi-chg flat">▲ 3.1%</div></div>
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">PP&E (Net)</div><div class="kpi-value">442M</div><div class="kpi-sub">94.4% NCA</div><div class="kpi-chg flat">▲ 3.3%</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">Depreciation (Annual)</div><div class="kpi-value">52M</div><div class="kpi-chg flat">—</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">PP&E (Gross)</div><div class="kpi-value">934M</div><div class="kpi-chg flat">—</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Accumulated Dep.</div><div class="kpi-value">492M</div><div class="kpi-chg flat">—</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-title">Fixed Asset Breakdown<span class="card-tag">Rs. M</span></div><div id="ppe-bk"></div></div>
+        <div class="card"><div class="card-title">PP&E vs Depreciation<span class="card-tag">Rs. M</span></div><div class="chart-box"><canvas id="c-ppe-bar"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">PP&E Schedule</div>
+        <table class="fin-table">
+          <thead><tr><th>Asset Category</th><th>Gross Value</th><th>Accum. Dep.</th><th>Net Book Value</th><th>Dep. Rate</th></tr></thead>
+          <tbody>
+            <tr><td>Buildings & Civil Works</td><td class="num">348M</td><td class="num">163M</td><td class="num">185M</td><td>5%</td></tr>
+            <tr><td>Plant & Machinery</td><td class="num">418M</td><td class="num">256M</td><td class="num">162M</td><td>10%</td></tr>
+            <tr><td>Furniture & Fixtures</td><td class="num">52M</td><td class="num">38M</td><td class="num">14M</td><td>10%</td></tr>
+            <tr class="total"><td>Total PP&E</td><td class="num">934M</td><td class="num">492M</td><td class="num">442M</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ BORROWINGS ═══ -->
+    <div class="tab-panel" id="tab-borrowings">
+      <div class="sec-title">Short-Term Borrowings</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Total ST Borrowings</div><div class="kpi-value">2,610M</div><div class="kpi-chg down">▲ 8.7%</div></div>
+        <div class="kpi"><div class="kpi-accent red"></div><div class="kpi-label">Mr. Chen Wei</div><div class="kpi-value">1,040M</div><div class="kpi-sub">39.8%</div><div class="kpi-chg down">▲ 9.2%</div></div>
+        <div class="kpi"><div class="kpi-accent amber"></div><div class="kpi-label">Mr. Li Guangwei</div><div class="kpi-value">940M</div><div class="kpi-sub">36.0%</div><div class="kpi-chg down">▲ 8.1%</div></div>
+        <div class="kpi"><div class="kpi-accent blue"></div><div class="kpi-label">Horizon Industries</div><div class="kpi-value">630M</div><div class="kpi-sub">24.1%</div><div class="kpi-chg down">▲ 8.6%</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="card-title">Lender Breakdown<span class="card-tag">Rs. M</span></div><div id="borrowings-bk"></div></div>
+        <div class="card"><div class="card-title">Lender Exposure<span class="card-tag">%</span></div><div class="chart-box"><canvas id="c-bor-pie"></canvas></div></div>
+      </div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Borrowings Detail</div>
+        <table class="fin-table">
+          <thead><tr><th>Lender</th><th>FY2025</th><th>FY2024</th><th>Type</th><th>YoY</th></tr></thead>
+          <tbody>
+            <tr><td>Mr. Chen Wei</td><td class="num">1,040,000,000</td><td class="num">952,000,000</td><td><span class="pill flat">Director Loan</span></td><td><span class="pill down">▲ 9.2%</span></td></tr>
+            <tr><td>Mr. Li Guangwei</td><td class="num">940,000,000</td><td class="num">869,000,000</td><td><span class="pill flat">Director Loan</span></td><td><span class="pill down">▲ 8.1%</span></td></tr>
+            <tr><td>Horizon Industries (Pvt) Ltd</td><td class="num">630,000,000</td><td class="num">580,000,000</td><td><span class="pill flat">Related Party</span></td><td><span class="pill down">▲ 8.6%</span></td></tr>
+            <tr class="total"><td>Total</td><td class="num">2,610,000,000</td><td class="num">2,401,000,000</td><td></td><td><span class="pill down">▲ 8.7%</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
 <script>
-// ══════════════════════════════
-// FALLBACK DATA (used if sheet fails)
-// ══════════════════════════════
-const FALLBACK = [
-  {c:'Client D',rev:56000,hrs:5, cost:100,prf:55900,mgn:99.8,pay:'Unpaid',ovd:true, days:43, mem:'John', wk:'Week 2',util:12.5,cap:40,due:'2026-04-12'},
-  {c:'Client C',rev:60000,hrs:25,cost:500,prf:59500,mgn:99.2,pay:'Paid',  ovd:false,days:0,  mem:'Tracy',wk:'Week 2',util:62.5,cap:40,due:'2026-04-17'},
-  {c:'Memona',  rev:5000, hrs:5, cost:100,prf:4900, mgn:98.0,pay:'Unpaid',ovd:true, days:140,mem:'Julie',wk:'Week 2',util:12.5,cap:40,due:'2026-01-05'},
-  {c:"Nimra's", rev:10000,hrs:10,cost:200,prf:9800, mgn:98.0,pay:'Unpaid',ovd:true, days:40, mem:'Sara', wk:'Week 2',util:25.0,cap:40,due:'2026-04-15'},
-  {c:'Client D',rev:56000,hrs:5, cost:100,prf:55900,mgn:99.8,pay:'Paid',  ovd:false,days:0,  mem:'John', wk:'Week 3',util:12.5,cap:40,due:'2026-04-12'},
-  {c:'Client C',rev:60000,hrs:28,cost:560,prf:59440,mgn:99.1,pay:'Paid',  ovd:false,days:0,  mem:'Tracy',wk:'Week 3',util:70.0,cap:40,due:'2026-04-17'},
-  {c:'Memona',  rev:5000, hrs:4, cost:80, prf:4920, mgn:98.4,pay:'Unpaid',ovd:true, days:140,mem:'Julie',wk:'Week 3',util:10.0,cap:40,due:'2026-01-05'},
-  {c:"Nimra's", rev:10000,hrs:12,cost:240,prf:9760, mgn:97.6,pay:'Unpaid',ovd:true, days:40, mem:'Sara', wk:'Week 3',util:30.0,cap:40,due:'2026-04-15'},
-  {c:'Client D',rev:56000,hrs:8, cost:160,prf:55840,mgn:99.7,pay:'Unpaid',ovd:false,days:0,  mem:'John', wk:'Week 4',util:20.0,cap:40,due:'2026-04-12'},
-  {c:'Client C',rev:60000,hrs:30,cost:600,prf:59400,mgn:99.0,pay:'Paid',  ovd:false,days:0,  mem:'Tracy',wk:'Week 4',util:75.0,cap:40,due:'2026-04-17'},
-  {c:'Memona',  rev:5000, hrs:3, cost:60, prf:4940, mgn:98.8,pay:'Unpaid',ovd:true, days:140,mem:'Julie',wk:'Week 4',util:7.5, cap:40,due:'2026-01-05'},
-  {c:"Nimra's", rev:10000,hrs:15,cost:300,prf:9700, mgn:97.0,pay:'Paid',  ovd:false,days:0,  mem:'Sara', wk:'Week 4',util:37.5,cap:40,due:'2026-04-15'},
+// ══════════════════════════════════════════════════
+// DATA — All anonymized demo data
+// ══════════════════════════════════════════════════
+const revRanked = [
+  [1,'Alpha Distributors',528340000,13.49],[2,'Beacon Wholesale',474820000,12.13],[3,'Crestview Retail Group',422180000,10.79],
+  [4,'Delta Merchandise Co.',272640000,6.96],[5,'Evergreen Trading',191560000,4.89],[6,'Falcon Goods Supply',178340000,4.56],
+  [7,'Goldstar Commerce',168920000,4.31],[8,'Harbor Bazaar',155480000,3.97],[9,'Inland Seasonal Buyers',143260000,3.66],
+  [10,'Jasper Trade House',126840000,3.24],[11,'Keystone Distributors',124180000,3.17],[12,'Landmark Wholesale',117420000,3.00],
+  [13,'Metro Supply Co.',98340000,2.51],[14,'Northview Crockery',79200000,2.02],[15,'Orbit Variety Hub',78940000,2.02],
+  [16,'Pinnacle Traders',65680000,1.68],[17,'Quartz Commerce',56480000,1.44],[18,'Redwood General Store',47120000,1.20],
+  [19,'Summit Trading',46840000,1.20],[20,'Triton Wholesalers',45640000,1.17],[21,'Unity Retail',45080000,1.15],
+  [22,'Vanguard Glass Co.',44080000,1.13],[23,'Westline Crockery',38220000,0.98],[24,'Xcel Wholesale',36180000,0.92],
+  [25,'Yield Hotelware',34520000,0.88],[26,'Zenith Goods',34080000,0.87],[27,'Apex Supply Chain',30080000,0.77],
+  [28,'Blue Ridge Traders',27540000,0.70],[29,'Cedar Point Commerce',26000000,0.66],[30,'Dawnview Crockery',22820000,0.58],
+  [31,'Eastern Supply Hub',17820000,0.46],[32,'Fort Knox Traders',17020000,0.43],[33,'Greystone Cash & Carry',15420000,0.39],
+  [34,'Highland Commerce',13420000,0.34],[35,'Iron Cross Trading',13100000,0.33],[36,'Jade Basin Crockery',12860000,0.33],
+  [37,'Kingston Retail',12540000,0.32],[38,'Lakeview Supply',12440000,0.32],[39,'Maple Leaf Trading',9960000,0.25],
+  [40,'Noble Retail Group',9280000,0.24],[41,'Opal Wholesalers',8740000,0.22],[42,'Pacific Rim Supply',8740000,0.22],
+  [43,'Quantum Glassware',8080000,0.21],[44,'Riviera Crockery',7890000,0.20],[45,'Sterling Traders',7740000,0.20],
+  [46,'Titan Commerce',6800000,0.17],[47,'Urban Home Supplies',6640000,0.17],[48,'Valor International',6540000,0.17],
+  [49,'Windmill Traders',4280000,0.11],[50,'Xanadu Associates',4080000,0.10],[51,'Yale Trading Co.',3960000,0.10],
+  [52,'Zara Retail Hub',3380000,0.09],[53,'Ace Supply Group',3130000,0.08],[54,'Bolt Commerce',2900000,0.07],
+  [55,'Crown Enterprises',2800000,0.07],[56,'Drift Traders',2750000,0.07],[57,'Echo Valley Store',1596000,0.04],
+  [58,'Flint Goods',1070000,0.03],[59,'Globe Traders',1070000,0.03],[60,'Haven Supplies',586000,0.01],
+  [61,'Iris Retail',536000,0.01],[62,'Jade Point Karachi',512000,0.01],[63,'Kite Commerce',401000,0.01],
+  [64,'Lime Tree Trading',321000,0.01],[65,'Marble Crest Retail',109000,0.00]
 ];
- 
-const LEAKAGE = [
-  {area:'Unbilled Time',    detail:'23.6 hours logged but not billed',impact:4720, action:'Review & Bill'},
-  {area:'Discounts Given',  detail:'8 invoices with discounts > 15%', impact:3250, action:'Review Pricing'},
-  {area:'Scope Creep',      detail:'12 projects over original scope',  impact:5600, action:'Set Boundaries'},
-  {area:'Overdue Invoices', detail:'5 invoices > 14 days',            impact:18450,action:'Follow Up'},
-  {area:'Low Margin Clients',detail:'2 clients below 30% margin',     impact:4980, action:'Take Action'},
+
+const outstandingData = [
+  [1,'Inland Seasonal Buyers',143260000,91962200,51297800,130.7,'HIGH'],
+  [2,'Falcon Goods Supply',178340000,133110920,45229080,92.6,'MEDIUM'],
+  [3,'Unity Retail',45080000,13223540,31856460,258.4,'HIGH'],
+  [4,'Northview Crockery',79200000,57766080,21433920,98.8,'HIGH'],
+  [5,'Cedar Point Commerce',26000000,6370000,19630000,275.7,'HIGH'],
+  [6,'Redwood General Store',47120000,29448280,17671720,136.9,'HIGH'],
+  [7,'Beacon Wholesale',474820000,379040800,17460680,13.4,'LOW'],
+  [8,'Summit Trading',46840000,7267120,11072180,86.4,'MEDIUM'],
+  [9,'Westline Crockery',38220000,13588320,7803420,74.6,'MEDIUM'],
+  [10,'Sterling Traders',7740000,0,7740000,365,'HIGH'],
+  [11,'Apex Supply Chain',30080000,15817200,5350000,64.9,'MEDIUM'],
+  [12,'Yield Hotelware',34520000,26645440,4878440,51.6,'MEDIUM'],
+  [13,'Jade Basin Crockery',12860000,8740300,4119700,116.9,'HIGH'],
+  [14,'Yale Trading Co.',3960000,455000,3505000,323.2,'HIGH'],
+  [15,'Noble Retail Group',9280000,6104000,3176000,124.9,'HIGH'],
+  [16,'Orbit Variety Hub',78940000,74780960,3150940,14.6,'LOW'],
+  [17,'Ace Supply Group',3130000,0,3130000,365,'HIGH'],
+  [18,'Triton Wholesalers',45640000,43538360,2113840,16.9,'LOW'],
+  [19,'Blue Ridge Traders',27540000,23526720,193840,2.6,'LOW']
 ];
- 
-let DATA = [...FALLBACK];
-let W = 'Week 4';
-const $ = id => document.getElementById(id);
-const m = n => '$' + n.toLocaleString();
- 
-function pB(p){
-  return p.toLowerCase()==='paid'
-    ?`<span class="badge b-paid">Paid</span>`
-    :`<span class="badge b-unpaid">Unpaid</span>`;
-}
-function uStatus(u){
-  if(u>=90) return`<span class="badge b-overloaded">Overloaded</span>`;
-  if(u>=70) return`<span class="badge b-optimal">Optimal</span>`;
-  if(u>=40) return`<span class="badge" style="background:rgba(52,211,153,0.1);color:var(--green)">Okay</span>`;
-  return`<span class="badge b-underutil">Underutilized</span>`;
-}
-function barFill(u){return u<30?'bf-red':u<60?'bf-amber':'bf-green'}
- 
-// ══════════════════════════════
-// GOOGLE SHEETS LIVE CONNECTION
-// ══════════════════════════════
-const SHEET_ID  = '1Zmf7Aluod8la9CwKfgEpuCwDXtswbHUDgm5D2QVp_E0';
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Sheet1`;
- 
-async function fetchSheet() {
-  const statusEl = $('sheet-status');
-  try {
-    const res  = await fetch(SHEET_URL);
-    const text = await res.text();
-    const json = JSON.parse(text.substring(47, text.length - 2));
-    const rows = json.table.rows;
- 
-    const live = rows.map(r => {
-      const v = r.c;
-      // Columns: A=clientName B=totalRevenue C=totalHours D=hourlyRate E=teamCost
-      //          F=profit G=marginPercent H=colorStatus I=paymentStatus J=dueDate
-      //          K=overdueFlag L=daysOverdue M=lowMarginAlert N=teamMember O=week
-      //          P=capacityHours Q=utilizationPercent R=weekClient
-      return {
-        c:    v[0]?.v||'',
-        rev:  +v[1]?.v||0,
-        hrs:  +v[2]?.v||0,
-        cost: +v[4]?.v||0,
-        prf:  +v[5]?.v||0,
-        mgn:  +v[6]?.v||0,
-        pay:  v[8]?.v||'Unpaid',
-        due:  v[9]?.v||'',
-        ovd:  v[10]?.v===true||String(v[10]?.v).toUpperCase()==='TRUE',
-        days: +v[11]?.v||0,
-        mem:  v[13]?.v||'',
-        wk:   v[14]?.v||'',
-        cap:  +v[15]?.v||40,
-        util: +v[16]?.v||0,
-      };
-    }).filter(x=>x.c&&x.wk);
- 
-    if(live.length > 0){
-      DATA = live;
-      statusEl.textContent = '✓ Live — Sheet Connected';
-      statusEl.className = 'sheet-status connected';
-    } else {
-      statusEl.textContent = '⚠ Sheet empty — using demo data';
-      statusEl.className = 'sheet-status';
-    }
-    render();
-  } catch(e){
-    console.warn('Sheet fetch error:', e);
-    statusEl.textContent = '✗ Sheet error — using demo data';
-    statusEl.className = 'sheet-status';
-    DATA = [...FALLBACK];
-    render();
+
+const collectionData = [
+  [1,'Iron Cross Trading',13100000,0,0,'POOR'],
+  [2,'Quantum Glassware',8080000,0,0,'POOR'],
+  [3,'Sterling Traders',7740000,0,0,'POOR'],
+  [4,'Valor International',6540000,0,0,'POOR'],
+  [5,'Windmill Traders',4280000,0,0,'POOR'],
+  [6,'Ace Supply Group',3130000,0,0,'POOR'],
+  [7,'Drift Traders',2750000,0,0,'POOR'],
+  [8,'Globe Traders',1070000,0,0,'POOR'],
+  [9,'Yale Trading Co.',3960000,455000,11.5,'POOR'],
+  [10,'Summit Trading',46840000,7267120,15.5,'POOR'],
+  [11,'Cedar Point Commerce',26000000,6370000,24.5,'POOR'],
+  [12,'Unity Retail',45080000,13223540,29.3,'POOR'],
+  [13,'Westline Crockery',38220000,13588320,35.6,'POOR'],
+  [14,'Urban Home Supplies',6640000,3320000,50.0,'POOR'],
+  [15,'Apex Supply Chain',30080000,15817200,52.6,'POOR'],
+  [16,'Redwood General Store',47120000,29448280,62.5,'POOR'],
+  [17,'Dawnview Crockery',22820000,14490300,63.5,'POOR'],
+  [18,'Noble Retail Group',9280000,6104000,65.8,'POOR'],
+  [19,'Echo Valley Store',1596000,1059840,66.4,'POOR'],
+  [20,'Inland Seasonal Buyers',143260000,91962200,64.2,'POOR'],
+  [21,'Jade Basin Crockery',12860000,8740300,68.0,'POOR'],
+  [22,'Maple Leaf Trading',9960000,6921600,69.5,'POOR'],
+  [23,'Highland Commerce',13420000,9335700,69.5,'POOR'],
+  [24,'Greystone Cash & Carry',15420000,11163870,72.4,'WATCH'],
+  [25,'Northview Crockery',79200000,57766080,72.9,'WATCH'],
+  [26,'Falcon Goods Supply',178340000,133110920,74.6,'WATCH'],
+  [27,'Yield Hotelware',34520000,26645440,77.1,'WATCH'],
+  [28,'Delta Merchandise Co.',272640000,215385600,79.0,'WATCH'],
+  [29,'Beacon Wholesale',474820000,379040800,79.8,'WATCH'],
+  [30,'Landmark Wholesale',117420000,94417530,80.4,'WATCH'],
+  [31,'Blue Ridge Traders',27540000,23526720,85.5,'WATCH'],
+  [32,'Pinnacle Traders',65680000,56757120,86.4,'WATCH'],
+  [33,'Metro Supply Co.',98340000,85521060,86.9,'WATCH'],
+  [34,'Opal Wholesalers',8740000,7813386,89.4,'WATCH'],
+  [35,'Alpha Distributors',528340000,472495960,89.4,'WATCH'],
+  [36,'Evergreen Trading',191560000,171466040,89.5,'WATCH'],
+  [37,'Vanguard Glass Co.',44080000,40377280,91.6,'GOOD'],
+  [38,'Orbit Variety Hub',78940000,74780960,94.7,'GOOD'],
+  [39,'Xcel Wholesale',36180000,34298640,94.8,'GOOD'],
+  [40,'Triton Wholesalers',45640000,43538360,95.4,'GOOD'],
+  [41,'Keystone Distributors',124180000,118507900,95.4,'GOOD'],
+  [42,'Jasper Trade House',126840000,123268080,97.2,'GOOD'],
+  [43,'Harbor Bazaar',155480000,154024520,99.1,'GOOD'],
+  [44,'Titan Commerce',6800000,6800000,100,'GOOD'],
+  [45,'Crown Enterprises',2800000,2800000,100,'GOOD'],
+  [46,'Iris Retail',536000,536000,100,'GOOD'],
+  [47,'Jade Point Karachi',512000,512000,100,'GOOD'],
+  [48,'Kite Commerce',401000,401000,100,'GOOD'],
+  [49,'Marble Crest Retail',109000,109000,100,'GOOD'],
+  [50,'Lime Tree Trading',321000,321000,100,'GOOD'],
+  [51,'Riviera Crockery',7890000,7901980,100.2,'GOOD'],
+  [52,'Goldstar Commerce',168920000,173360264,102.6,'GOOD'],
+  [53,'Xanadu Associates',4080000,4288320,105.1,'GOOD'],
+  [54,'Crestview Retail Group',422180000,453107940,107.3,'GOOD'],
+  [55,'Zara Retail Hub',3380000,3806680,112.6,'GOOD'],
+  [56,'Zenith Goods',34080000,38731680,113.7,'GOOD'],
+  [57,'Fort Knox Traders',17020000,21041740,123.7,'GOOD'],
+  [58,'Haven Supplies',586000,749000,127.8,'GOOD'],
+  [59,'Flint Goods',1070000,1605000,150,'GOOD'],
+  [60,'Lakeview Supply',12440000,19571680,157.3,'GOOD'],
+  [61,'Bolt Commerce',2900000,4681400,161.4,'GOOD'],
+  [62,'Pacific Rim Supply',8740000,16047540,183.7,'GOOD'],
+  [63,'Quartz Commerce',56480000,115085440,203.8,'GOOD'],
+  [64,'Kingston Retail',12540000,26753820,213.4,'GOOD'],
+  [65,'Eastern Supply Hub',17820000,40685460,228.3,'GOOD']
+];
+
+const overdueData = [
+  {name:'Sterling Traders',rev:7740000,ar:7740000,dso:365,eff:0,level:'HIGH'},
+  {name:'Ace Supply Group',rev:3130000,ar:3130000,dso:365,eff:0,level:'HIGH'},
+  {name:'Yale Trading Co.',rev:3960000,ar:3505000,dso:323.2,eff:11.5,level:'HIGH'},
+  {name:'Cedar Point Commerce',rev:26000000,ar:19630000,dso:275.7,eff:24.5,level:'HIGH'},
+  {name:'Unity Retail',rev:45080000,ar:31856460,dso:258.4,eff:29.3,level:'HIGH'},
+  {name:'Redwood General Store',rev:47120000,ar:17671720,dso:136.9,eff:62.5,level:'HIGH'},
+  {name:'Noble Retail Group',rev:9280000,ar:3176000,dso:124.9,eff:65.8,level:'HIGH'},
+  {name:'Inland Seasonal Buyers',rev:143260000,ar:51297800,dso:130.7,eff:64.2,level:'HIGH'},
+  {name:'Jade Basin Crockery',rev:12860000,ar:4119700,dso:116.9,eff:68.0,level:'HIGH'},
+  {name:'Northview Crockery',rev:79200000,ar:21433920,dso:98.8,eff:72.9,level:'HIGH'},
+  {name:'Falcon Goods Supply',rev:178340000,ar:45229080,dso:92.6,eff:74.6,level:'MEDIUM'},
+  {name:'Summit Trading',rev:46840000,ar:11072180,dso:86.4,eff:15.5,level:'MEDIUM'},
+  {name:'Westline Crockery',rev:38220000,ar:7803420,dso:74.6,eff:35.6,level:'MEDIUM'},
+  {name:'Apex Supply Chain',rev:30080000,ar:5350000,dso:64.9,eff:52.6,level:'MEDIUM'},
+  {name:'Yield Hotelware',rev:34520000,ar:4878440,dso:51.6,eff:77.1,level:'MEDIUM'},
+  {name:'Triton Wholesalers',rev:45640000,ar:2113840,dso:16.9,eff:95.4,level:'LOW'},
+  {name:'Orbit Variety Hub',rev:78940000,ar:3150940,dso:14.6,eff:94.7,level:'LOW'},
+  {name:'Beacon Wholesale',rev:474820000,ar:17460680,dso:13.4,eff:79.8,level:'LOW'},
+  {name:'Blue Ridge Traders',rev:27540000,ar:193840,dso:2.6,eff:85.5,level:'LOW'}
+];
+
+const marginData = revRanked.map(r => ({
+  rank:r[0], name:r[1], rev:r[2],
+  cogs: r[2]*0.8998, gp: r[2]*0.1002, gm:10.02
+}));
+
+const top10 = [
+  {rank:1,name:'Alpha Distributors',rev:528340000,pct:13.49,ar:0,eff:89.4},
+  {rank:2,name:'Beacon Wholesale',rev:474820000,pct:12.13,ar:17460680,eff:79.8},
+  {rank:3,name:'Crestview Retail Group',rev:422180000,pct:10.79,ar:0,eff:107.3},
+  {rank:4,name:'Delta Merchandise Co.',rev:272640000,pct:6.96,ar:0,eff:79.0},
+  {rank:5,name:'Evergreen Trading',rev:191560000,pct:4.89,ar:0,eff:89.5},
+  {rank:6,name:'Falcon Goods Supply',rev:178340000,pct:4.56,ar:45229080,eff:74.6},
+  {rank:7,name:'Goldstar Commerce',rev:168920000,pct:4.31,ar:0,eff:102.6},
+  {rank:8,name:'Harbor Bazaar',rev:155480000,pct:3.97,ar:0,eff:99.1},
+  {rank:9,name:'Inland Seasonal Buyers',rev:143260000,pct:3.66,ar:51297800,eff:64.2},
+  {rank:10,name:'Jasper Trade House',rev:126840000,pct:3.24,ar:0,eff:97.2}
+];
+const bot10 = [
+  {rank:1,name:'Marble Crest Retail',rev:109000,pct:0.00,ar:0,eff:100},
+  {rank:2,name:'Lime Tree Trading',rev:321000,pct:0.01,ar:0,eff:100},
+  {rank:3,name:'Kite Commerce',rev:401000,pct:0.01,ar:0,eff:100},
+  {rank:4,name:'Jade Point Karachi',rev:512000,pct:0.01,ar:0,eff:100},
+  {rank:5,name:'Iris Retail',rev:536000,pct:0.01,ar:0,eff:100},
+  {rank:6,name:'Haven Supplies',rev:586000,pct:0.01,ar:0,eff:127.8},
+  {rank:7,name:'Globe Traders',rev:1070000,pct:0.03,ar:0,eff:0},
+  {rank:8,name:'Flint Goods',rev:1070000,pct:0.03,ar:0,eff:150},
+  {rank:9,name:'Echo Valley Store',rev:1596000,pct:0.04,ar:0,eff:66.4},
+  {rank:10,name:'Drift Traders',rev:2750000,pct:0.07,ar:0,eff:0}
+];
+
+// ══════════════════════════════════════════════════
+// CHART SETUP
+// ══════════════════════════════════════════════════
+const COLORS = {
+  blue:'#3b7cff',green:'#22c55e',red:'#ef4444',
+  amber:'#f59e0b',cyan:'#06b6d4',purple:'#a855f7',
+  grid:'rgba(255,255,255,.06)',text:'#8b97b4'
+};
+Chart.defaults.color = COLORS.text;
+Chart.defaults.font.family = "'Segoe UI',system-ui,sans-serif";
+Chart.defaults.font.size = 11;
+
+const base = {
+  responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{labels:{boxWidth:10,padding:12,color:COLORS.text}}},
+  scales:{
+    x:{grid:{color:COLORS.grid},ticks:{color:COLORS.text}},
+    y:{grid:{color:COLORS.grid},ticks:{color:COLORS.text}}
   }
+};
+
+function fc(id,cfg){const e=document.getElementById(id);if(!e)return null;return new Chart(e,cfg);}
+
+// Overview P&L
+fc('c-overview-pl',{type:'bar',data:{labels:['FY2023','FY2024','FY2025'],datasets:[
+  {label:'Revenue',data:[2410,2750,3142],backgroundColor:'rgba(59,124,255,.7)',borderRadius:5},
+  {label:'Gross Profit',data:[411,458,503],backgroundColor:'rgba(34,197,94,.7)',borderRadius:5},
+  {label:'Net Profit',data:[59,68,71],backgroundColor:'rgba(6,182,212,.7)',borderRadius:5},
+]},options:{...base,scales:{x:{...base.scales.x},y:{...base.scales.y,ticks:{callback:v=>`${v}M`}}}}});
+
+// Overview top 5 clients
+fc('c-overview-clients',{type:'bar',data:{
+  labels:['Alpha Distributors','Beacon Wholesale','Crestview Retail','Delta Merchandise','Evergreen Trading'],
+  datasets:[{label:'Revenue',data:[528,475,422,273,192],backgroundColor:'rgba(59,124,255,.7)',borderRadius:5}]
+},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{...base.scales.x,ticks:{callback:v=>`${v}M`}},y:{...base.scales.y}}}});
+
+// P&L
+fc('c-pl-bar',{type:'bar',data:{labels:['Revenue','COGS','Gross P.','OpEx','EBIT','Finance','Net P.'],datasets:[{
+  data:[3142,-2639,503,-388,115,-28.5,71],
+  backgroundColor:ctx=>ctx.raw<0?'rgba(239,68,68,.6)':'rgba(34,197,94,.6)',
+  borderColor:ctx=>ctx.raw<0?COLORS.red:COLORS.green,borderWidth:1,borderRadius:5
+}]},options:{...base,plugins:{legend:{display:false}},scales:{x:{...base.scales.x},y:{...base.scales.y,ticks:{callback:v=>Math.abs(v)>=1000?`${(v/1000).toFixed(1)}B`:`${v}M`}}}}});
+
+fc('c-pl-margins',{type:'line',data:{labels:['FY2023','FY2024','FY2025'],datasets:[
+  {label:'Gross Margin %',data:[17.1,16.6,16.0],borderColor:COLORS.green,backgroundColor:'rgba(34,197,94,.06)',tension:.4,fill:true,pointRadius:4},
+  {label:'Net Margin %',data:[2.45,2.47,2.26],borderColor:COLORS.amber,backgroundColor:'rgba(245,158,11,.06)',tension:.4,fill:true,pointRadius:4},
+]},options:{...base,scales:{x:{...base.scales.x},y:{...base.scales.y,ticks:{callback:v=>`${v}%`}}}}});
+
+// Stock
+fc('c-stock-pie',{type:'doughnut',data:{
+  labels:['Raw Material','WIP','Finished Goods','Stores & Spares'],
+  datasets:[{data:[3140,720,3870,410],backgroundColor:[COLORS.amber,COLORS.cyan,COLORS.blue,COLORS.red],borderWidth:0}]
+},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,color:COLORS.text}}}}});
+
+fc('c-stock-yoy',{type:'bar',data:{labels:['Raw Material','WIP','Finished Goods','Stores & Spares'],datasets:[
+  {label:'FY2024',data:[2994,720,3607,414],backgroundColor:'rgba(59,124,255,.4)',borderRadius:4},
+  {label:'FY2025',data:[3140,720,3870,410],backgroundColor:'rgba(59,124,255,.8)',borderRadius:4},
+]},options:{...base,scales:{x:{...base.scales.x},y:{...base.scales.y,ticks:{callback:v=>`${v}M`}}}}});
+
+// Payables
+fc('c-pay-pie',{type:'doughnut',data:{
+  labels:['Local Creditors','Contract Liab.','Foreign Creditors','Accrued Exp.'],
+  datasets:[{data:[920,355,310,197],backgroundColor:[COLORS.red,COLORS.amber,COLORS.blue,COLORS.cyan],borderWidth:0}]
+},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,color:COLORS.text}}}}});
+
+fc('c-pay-aging',{type:'bar',data:{labels:['0–30 days','31–60 days','61–90 days','90+ days'],datasets:[{
+  label:'Payables',data:[680,494,348,260],
+  backgroundColor:[COLORS.green,'rgba(245,158,11,.7)','rgba(239,68,68,.6)',COLORS.red],borderRadius:5
+}]},options:{...base,plugins:{legend:{display:false}},scales:{x:{...base.scales.x},y:{...base.scales.y,ticks:{callback:v=>`${v}M`}}}}});
+
+// Tax
+fc('c-tax-pie',{type:'doughnut',data:{
+  labels:['Adv. Income Tax','Advances to Supp.','Sales Tax Recv.','Prepaid'],
+  datasets:[{data:[218,196,158,62],backgroundColor:[COLORS.amber,COLORS.cyan,COLORS.blue,COLORS.green],borderWidth:0}]
+},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,color:COLORS.text}}}}});
+
+// Borrowings
+fc('c-bor-pie',{type:'doughnut',data:{
+  labels:['Mr. Chen Wei','Mr. Li Guangwei','Horizon Industries'],
+  datasets:[{data:[1040,940,630],backgroundColor:[COLORS.red,COLORS.amber,COLORS.blue],borderWidth:0}]
+},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,color:COLORS.text}}}}});
+
+// PPE
+fc('c-ppe-bar',{type:'bar',data:{labels:['Buildings','Plant & Mach.','Furniture & Fix.'],datasets:[
+  {label:'Gross Value',data:[348,418,52],backgroundColor:'rgba(59,124,255,.5)',borderRadius:4},
+  {label:'Net Book Value',data:[185,162,14],backgroundColor:COLORS.cyan,borderRadius:4},
+]},options:{...base,scales:{x:{...base.scales.x},y:{...base.scales.y,ticks:{callback:v=>`${v}M`}}}}});
+
+// Banks
+fc('c-banks',{type:'bar',data:{
+  labels:['National Bank','Islamic Finance','United Commercial','Capital Bank','Metro Finance','First Alliance'],
+  datasets:[{data:[1.3,-2418.3,62.8,-74.2,-11.4,-384.2],
+    backgroundColor:['rgba(34,197,94,.7)','rgba(239,68,68,.7)','rgba(34,197,94,.7)','rgba(239,68,68,.7)','rgba(239,68,68,.7)','rgba(239,68,68,.7)'],
+    borderColor:['#22c55e','#ef4444','#22c55e','#ef4444','#ef4444','#ef4444'],borderWidth:1,borderRadius:5
+  }]
+},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{...base.scales.x,ticks:{callback:v=>`${v}M`}},y:{...base.scales.y}}}});
+
+// Ratios
+fc('c-ratio-trend',{type:'line',data:{labels:['FY2023','FY2024','FY2025'],datasets:[
+  {label:'Current Ratio',data:[1.12,1.09,1.07],borderColor:COLORS.cyan,tension:.4,yAxisID:'y',pointRadius:4},
+  {label:'Quick Ratio',data:[0.22,0.19,0.17],borderColor:COLORS.amber,tension:.4,yAxisID:'y',pointRadius:4},
+  {label:'D/E Ratio',data:[1.98,2.16,2.31],borderColor:COLORS.red,tension:.4,yAxisID:'y2',pointRadius:4},
+]},options:{...base,scales:{
+  x:{...base.scales.x},
+  y:{...base.scales.y,position:'left',title:{display:true,text:'Liquidity',color:COLORS.text}},
+  y2:{grid:{display:false},position:'right',ticks:{color:COLORS.text},title:{display:true,text:'D/E',color:COLORS.text}}
+}}});
+
+// YoY
+fc('c-yoy-trend',{type:'line',data:{labels:['FY2023','FY2024','FY2025'],datasets:[
+  {label:'Revenue (M)',data:[2410,2750,3142],borderColor:COLORS.blue,backgroundColor:'rgba(59,124,255,.06)',tension:.4,fill:true,yAxisID:'y',pointRadius:4},
+  {label:'Gross Profit (M)',data:[411,458,503],borderColor:COLORS.green,tension:.4,yAxisID:'y',pointRadius:4},
+  {label:'Net Profit (M)',data:[59,68,71],borderColor:COLORS.amber,tension:.4,yAxisID:'y2',pointRadius:4},
+]},options:{...base,scales:{
+  x:{...base.scales.x},
+  y:{...base.scales.y,position:'left',ticks:{callback:v=>`${v}M`}},
+  y2:{grid:{display:false},position:'right',ticks:{callback:v=>`${v}M`,color:COLORS.text}}
+}}});
+
+// Rev ranked top10
+const top10Names = revRanked.slice(0,10).map(r=>r[1].length>18?r[1].substring(0,18)+'…':r[1]);
+const top10Vals = revRanked.slice(0,10).map(r=>Math.round(r[2]/1000000));
+fc('c-rev-top10',{type:'bar',data:{
+  labels:top10Names,
+  datasets:[{label:'Revenue (M)',data:top10Vals,backgroundColor:'rgba(59,124,255,.7)',borderRadius:5}]
+},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{...base.scales.x,ticks:{callback:v=>`${v}M`}},y:{...base.scales.y,ticks:{font:{size:9}}}}}});
+
+// Revenue concentration
+const top10Rev = revRanked.slice(0,10).reduce((a,r)=>a+r[2],0);
+const totalRev = 3914000000;
+fc('c-rev-conc',{type:'doughnut',data:{
+  labels:['Top 10 Clients','Next 10','Remaining 45'],
+  datasets:[{data:[Math.round(top10Rev/1e6), Math.round(revRanked.slice(10,20).reduce((a,r)=>a+r[2],0)/1e6), Math.round(revRanked.slice(20).reduce((a,r)=>a+r[2],0)/1e6)],
+    backgroundColor:[COLORS.blue,COLORS.cyan,'rgba(59,124,255,.25)'],borderWidth:0}]
+},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,color:COLORS.text}}}}});
+
+// Outstanding bar
+const outTop10 = outstandingData.filter(r=>r[6]!='LOW').slice(0,10);
+fc('c-outstanding-bar',{type:'bar',data:{
+  labels:outTop10.map(r=>r[1].length>16?r[1].substring(0,16)+'…':r[1]),
+  datasets:[{label:'Outstanding AR (M)',data:outTop10.map(r=>+(r[4]/1e6).toFixed(1)),
+    backgroundColor:outTop10.map(r=>r[6]==='HIGH'?'rgba(239,68,68,.7)':'rgba(245,158,11,.7)'),borderRadius:5}]
+},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{...base.scales.x,ticks:{callback:v=>`${v}M`}},y:{...base.scales.y,ticks:{font:{size:9}}}}}});
+
+// DSO bar
+fc('c-dso-bar',{type:'bar',data:{
+  labels:outstandingData.filter(r=>r[4]>0).slice(0,10).map(r=>r[1].length>14?r[1].substring(0,14)+'…':r[1]),
+  datasets:[{label:'DSO (Days)',data:outstandingData.filter(r=>r[4]>0).slice(0,10).map(r=>r[5]),
+    backgroundColor:outstandingData.filter(r=>r[4]>0).slice(0,10).map(r=>r[5]>90?'rgba(239,68,68,.7)':r[5]>45?'rgba(245,158,11,.7)':'rgba(34,197,94,.7)'),borderRadius:5}]
+},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{...base.scales.x},y:{...base.scales.y,ticks:{font:{size:9}}}}}});
+
+// Collection pie
+fc('c-coll-pie',{type:'doughnut',data:{
+  labels:['POOR (<70%)','WATCH (70-90%)','GOOD (90%+)'],
+  datasets:[{data:[24,12,29],backgroundColor:[COLORS.red,COLORS.amber,COLORS.green],borderWidth:0}]
+},options:{responsive:true,maintainAspectRatio:false,cutout:'55%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,color:COLORS.text}}}}});
+
+// Worst 10 efficiency
+const worst10 = collectionData.filter(r=>r[4]<100 && r[3]>=0).slice(0,10);
+fc('c-coll-worst',{type:'bar',data:{
+  labels:worst10.map(r=>r[1].length>14?r[1].substring(0,14)+'…':r[1]),
+  datasets:[{label:'Efficiency %',data:worst10.map(r=>r[4]),
+    backgroundColor:worst10.map(r=>r[4]<70?'rgba(239,68,68,.7)':'rgba(245,158,11,.7)'),borderRadius:5}]
+},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{...base.scales.x,min:0,max:100,ticks:{callback:v=>`${v}%`}},y:{...base.scales.y,ticks:{font:{size:9}}}}}});
+
+// Overdue chart
+fc('c-overdue-chart',{type:'bar',data:{
+  labels:overdueData.map(d=>d.name.length>18?d.name.substring(0,18)+'…':d.name),
+  datasets:[
+    {label:'Outstanding AR (M)',data:overdueData.map(d=>+(d.ar/1e6).toFixed(1)),
+      backgroundColor:overdueData.map(d=>d.level==='HIGH'?'rgba(239,68,68,.7)':d.level==='MEDIUM'?'rgba(245,158,11,.7)':'rgba(34,197,94,.7)'),borderRadius:5}
+  ]
+},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{...base.scales.x,ticks:{callback:v=>`${v}M`}},y:{...base.scales.y,ticks:{font:{size:9}}}}}});
+
+// Margin bar
+fc('c-margin-bar',{type:'bar',data:{
+  labels:marginData.slice(0,10).map(r=>r.name.length>14?r.name.substring(0,14)+'…':r.name),
+  datasets:[{label:'Est. Gross Profit (M)',data:marginData.slice(0,10).map(r=>+(r.gp/1e6).toFixed(1)),
+    backgroundColor:'rgba(34,197,94,.7)',borderRadius:5}]
+},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{...base.scales.x,ticks:{callback:v=>`${v}M`}},y:{...base.scales.y,ticks:{font:{size:9}}}}}});
+
+// Margin compare
+fc('c-margin-compare',{type:'bar',data:{
+  labels:marginData.slice(0,10).map(r=>r.name.length>10?r.name.substring(0,10)+'…':r.name),
+  datasets:[
+    {label:'Revenue',data:marginData.slice(0,10).map(r=>+(r.rev/1e6).toFixed(1)),backgroundColor:'rgba(59,124,255,.5)',borderRadius:4},
+    {label:'Est. GP',data:marginData.slice(0,10).map(r=>+(r.gp/1e6).toFixed(1)),backgroundColor:'rgba(34,197,94,.7)',borderRadius:4}
+  ]
+},options:{...base,scales:{x:{...base.scales.x,ticks:{font:{size:9}}},y:{...base.scales.y,ticks:{callback:v=>`${v}M`}}}}});
+
+// Top/Bot 10 charts
+fc('c-top10-bar',{type:'bar',data:{
+  labels:top10.map(r=>r.name.length>14?r.name.substring(0,14)+'…':r.name),
+  datasets:[{label:'Revenue (M)',data:top10.map(r=>+(r.rev/1e6).toFixed(1)),backgroundColor:'rgba(59,124,255,.7)',borderRadius:5}]
+},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{...base.scales.x,ticks:{callback:v=>`${v}M`}},y:{...base.scales.y,ticks:{font:{size:9}}}}}});
+
+fc('c-bot10-bar',{type:'bar',data:{
+  labels:bot10.map(r=>r.name.length>14?r.name.substring(0,14)+'…':r.name),
+  datasets:[{label:'Revenue',data:bot10.map(r=>+(r.rev/1e6*1000).toFixed(0)),backgroundColor:'rgba(245,158,11,.7)',borderRadius:5}]
+},options:{...base,indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{...base.scales.x,ticks:{callback:v=>`${v}K`}},y:{...base.scales.y,ticks:{font:{size:9}}}}}});
+
+// ══════════════════════════════════════════════════
+// BREAKDOWN ROWS
+// ══════════════════════════════════════════════════
+function renderBk(id,items){
+  const c=document.getElementById(id);if(!c)return;
+  const max=Math.max(...items.map(i=>Math.abs(i.v)));
+  c.innerHTML=items.map(i=>`<div class="bk-row">
+    <span class="bk-name">${i.n}</span>
+    <div class="bk-bar-wrap"><div class="bk-bar ${i.c}" style="width:${Math.round(Math.abs(i.v)/max*100)}%"></div></div>
+    <span class="bk-val">Rs. ${i.v.toLocaleString()}M</span>
+    <span class="bk-pct">${(i.v/max*100).toFixed(0)}%</span>
+  </div>`).join('');
 }
- 
-function render() {
-  const d    = DATA.filter(x=>x.wk===W);
-  const prev = DATA.filter(x=>x.wk==='Week 3');
- 
-  if(!d.length){ return; }
- 
-  const ovd  = d.filter(x=>x.ovd&&x.days>0);
-  const paid = d.filter(x=>x.pay.toLowerCase()==='paid');
-  const unp  = d.filter(x=>x.pay.toLowerCase()!=='paid');
-  const low  = d.filter(x=>x.mgn<30);
- 
-  const totRev  = d.reduce((s,x)=>s+x.rev,0);
-  const totPrf  = d.reduce((s,x)=>s+x.prf,0);
-  const totCost = d.reduce((s,x)=>s+x.cost,0);
-  const avgMgn  = d.reduce((s,x)=>s+x.mgn,0)/d.length;
-  const maxRev  = Math.max(...d.map(x=>x.rev));
- 
-  const prevRev = prev.reduce((s,x)=>s+x.rev,0);
-  const prevPrf = prev.reduce((s,x)=>s+x.prf,0);
-  const prevMgn = prev.length ? prev.reduce((s,x)=>s+x.mgn,0)/prev.length : avgMgn;
- 
-  const revDelta = prevRev ? (((totRev-prevRev)/prevRev)*100).toFixed(1) : 0;
-  const prfDelta = prevPrf ? (((totPrf-prevPrf)/prevPrf)*100).toFixed(1) : 0;
-  const mgnDelta = (avgMgn-prevMgn).toFixed(1);
- 
-  $('nb-inv').textContent    = ovd.length;
-  $('nb-action').textContent = d.filter(x=>x.mgn<30||x.util<40).length;
-  $('nb-alerts').textContent = ovd.length + d.filter(x=>x.util<30).length;
-  $('last-updated').innerHTML = `↻ Last updated: ${new Date().toLocaleTimeString()}`;
- 
-  $('ov-rev').textContent = m(totRev);
-  $('ov-prf').textContent = m(totPrf);
-  $('ov-mgn').textContent = avgMgn.toFixed(1)+'%';
-  $('ov-ovd').textContent = ovd.length;
-  $('ov-low').textContent = low.length;
-  $('ov-rev-d').innerHTML = `<span class="${revDelta>=0?'delta-up':'delta-dn'}">${revDelta>=0?'↑':'↓'} ${Math.abs(revDelta)}% vs last week</span>`;
-  $('ov-prf-d').innerHTML = `<span class="${prfDelta>=0?'delta-up':'delta-dn'}">${prfDelta>=0?'↑':'↓'} ${Math.abs(prfDelta)}% vs last week</span>`;
-  $('ov-mgn-d').innerHTML = `<span class="${mgnDelta>=0?'delta-up':'delta-dn'}">${mgnDelta>=0?'↑':'↓'} ${Math.abs(mgnDelta)}pp vs last week</span>`;
- 
-  const fireC   = d.filter(x=>x.mgn<30).sort((a,b)=>a.mgn-b.mgn);
-  const upsellC = d.filter(x=>x.mgn>=70).sort((a,b)=>b.mgn-a.mgn);
- 
-  $('ov-fire').innerHTML = (fireC.length?fireC:[...d].sort((a,b)=>a.mgn-b.mgn).slice(0,2)).map(x=>`
-    <tr>
-      <td class="td-s">${x.c}</td>
-      <td class="${x.mgn<0?'td-r':'td-a'} td-m">${x.mgn.toFixed(1)}%</td>
-      <td class="td-m ${x.prf<0?'td-r':''}">${m(x.prf)}</td>
-      <td>${x.mgn<0?`<span class="badge b-fire">LOSS</span>`:`<span class="badge b-review">LOW</span>`}</td>
-      <td><button class="act-btn ${x.mgn<0?'act-fire':'act-review'}">${x.mgn<0?'FIRE':'REVIEW'}</button></td>
-    </tr>`).join('');
- 
-  $('ov-upsell').innerHTML = (upsellC.length?upsellC:[...d].sort((a,b)=>b.mgn-a.mgn).slice(0,3)).map(x=>`
-    <tr>
-      <td class="td-s">${x.c}</td>
-      <td class="td-g td-m">${x.mgn.toFixed(1)}%</td>
-      <td class="td-m">${m(x.prf)}</td>
-      <td><button class="act-btn act-increase">INCREASE PRICE</button></td>
-    </tr>`).join('');
- 
-  $('ov-team').innerHTML = d.map(x=>`
-    <tr>
-      <td class="td-s">${x.mem}</td><td>${x.hrs}</td><td>${x.cap}</td>
-      <td class="td-m ${x.util<30?'td-a':''}">${x.util.toFixed(0)}%</td>
-      <td>${uStatus(x.util)}</td>
-    </tr>`).join('');
- 
-  const leakTotal = LEAKAGE.reduce((s,l)=>s+l.impact,0);
-  $('ov-leak').innerHTML = LEAKAGE.map(l=>`
-    <tr>
-      <td class="td-s">${l.area}</td>
-      <td style="color:var(--t3);font-size:11px">${l.detail}</td>
-      <td class="td-r td-m">${m(l.impact)}</td>
-      <td><button class="act-btn act-follow">${l.action}</button></td>
-    </tr>`).join('');
-  $('ov-leak-total').textContent = m(leakTotal);
-  $('leak-tbody').innerHTML = $('ov-leak').innerHTML;
-  $('leak-total').textContent = m(leakTotal);
- 
-  $('ov-mbars').innerHTML = d.map(x=>`
-    <div class="bar-row">
-      <div class="bar-name">${x.c}</div>
-      <div class="bar-track"><div class="bar-fill bf-blue" style="width:${Math.min(x.mgn,100).toFixed(1)}%"></div></div>
-      <div class="bar-val">${x.mgn.toFixed(1)}%</div>
-    </div>`).join('');
- 
-  const best  = d.reduce((a,b)=>a.mgn>b.mgn?a:b);
-  const worst = d.reduce((a,b)=>a.mgn<b.mgn?a:b);
-  $('ov-best').innerHTML  = `<div style="font-size:22px;font-weight:700;color:var(--t1);margin-bottom:6px">${best.c}</div><div style="font-size:13px;color:var(--t2)">Margin: <span style="color:var(--green);font-family:var(--mono)">${best.mgn.toFixed(1)}%</span></div><div style="font-size:13px;color:var(--t2)">Profit: <span style="color:var(--green);font-family:var(--mono)">${m(best.prf)}</span></div>`;
-  $('ov-worst').innerHTML = `<div style="font-size:22px;font-weight:700;color:var(--t1);margin-bottom:6px">${worst.c}</div><div style="font-size:13px;color:var(--t2)">Margin: <span style="color:var(--red);font-family:var(--mono)">${worst.mgn.toFixed(1)}%</span></div><div style="font-size:13px;color:var(--t2)">${worst.prf<0?'Loss':'Profit'}: <span style="color:var(--red);font-family:var(--mono)">${m(Math.abs(worst.prf))}</span></div>`;
-  $('ov-summary').innerHTML = `
-    <div><div class="stat-lbl">Revenue</div><div class="stat-val" style="font-size:15px">${m(totRev)}</div><div class="stat-delta delta-up">↑ ${revDelta}%</div></div>
-    <div><div class="stat-lbl">Profit</div><div class="stat-val" style="font-size:15px">${m(totPrf)}</div><div class="stat-delta delta-up">↑ ${prfDelta}%</div></div>
-    <div><div class="stat-lbl">Margin</div><div class="stat-val" style="font-size:15px">${avgMgn.toFixed(1)}%</div><div class="stat-delta delta-up">↑ ${mgnDelta}pp</div></div>
-    <div><div class="stat-lbl">Overdue</div><div class="stat-val" style="font-size:15px;color:var(--red)">${ovd.length}</div><div class="stat-delta delta-dn">↓ Need action</div></div>`;
- 
-  const alertItems=[];
-  ovd.slice(0,2).forEach(x=>alertItems.push(`<div class="alert-item"><div class="alert-dot ad-r"></div><div class="alert-text"><strong>${x.c}</strong> invoice overdue <strong>${x.days} days</strong></div></div>`));
-  d.filter(x=>x.util<30).slice(0,1).forEach(x=>alertItems.push(`<div class="alert-item"><div class="alert-dot ad-a"></div><div class="alert-text"><strong>${x.mem}</strong> utilization <strong>${x.util}%</strong> — below threshold</div></div>`));
-  $('ov-alerts').innerHTML = alertItems.join('')||'<div style="color:var(--t3);font-size:12px;padding:8px 0">No alerts ✓</div>';
- 
-  $('prof-wk').textContent = W;
-  $('prof-tbody').innerHTML = d.map(x=>`
-    <tr>
-      <td class="td-s">${x.c}</td><td class="td-m">${m(x.rev)}</td>
-      <td class="td-r td-m">$${x.cost.toLocaleString()}</td>
-      <td class="td-g td-m">${m(x.prf)}</td>
-      <td class="td-g">${x.mgn.toFixed(1)}%</td>
-      <td>${x.hrs}h</td><td>${x.mem}</td><td>${pB(x.pay)}</td>
-    </tr>`).join('');
-  $('prof-bars').innerHTML = d.map(x=>`<div class="bar-row"><div class="bar-name">${x.c}</div><div class="bar-track"><div class="bar-fill ${barFill(x.mgn)}" style="width:${Math.min(x.mgn,100).toFixed(1)}%"></div></div><div class="bar-val">${x.mgn.toFixed(1)}%</div></div>`).join('');
-  $('prof-rev-bars').innerHTML = d.map(x=>`<div class="bar-row"><div class="bar-name">${x.c}</div><div class="bar-track"><div class="bar-fill bf-blue" style="width:${(x.rev/maxRev*100).toFixed(1)}%"></div></div><div class="bar-val">${m(x.rev)}</div></div>`).join('');
- 
-  $('act-fire').innerHTML = [...d].sort((a,b)=>a.mgn-b.mgn).slice(0,3).map(x=>`
-    <tr><td class="td-s">${x.c}</td><td class="${x.mgn<50?'td-a':'td-g'} td-m">${x.mgn.toFixed(1)}%</td>
-    <td class="td-m">${m(x.prf)}</td><td>${x.hrs}h</td>
-    <td><button class="act-btn ${x.mgn<30?'act-fire':'act-review'}">${x.mgn<30?'FIRE':'REVIEW'}</button></td></tr>`).join('');
-  $('act-upsell').innerHTML = [...d].sort((a,b)=>b.mgn-a.mgn).slice(0,3).map(x=>`
-    <tr><td class="td-s">${x.c}</td><td class="td-g td-m">${x.mgn.toFixed(1)}%</td>
-    <td class="td-m">${m(x.prf)}</td><td>${x.hrs}h</td>
-    <td><button class="act-btn act-increase">INCREASE PRICE</button></td></tr>`).join('');
- 
-  $('team-tbody').innerHTML = d.map(x=>`
-    <tr><td class="td-s">${x.mem}</td><td>${x.c}</td><td>${x.hrs}h</td><td>${x.cap}h</td>
-    <td><div style="display:flex;align-items:center;gap:8px"><div class="util-bar"><div class="util-fill ${barFill(x.util)}" style="width:${x.util.toFixed(0)}%"></div></div><span style="font-family:var(--mono);font-size:11px;width:32px">${x.util.toFixed(0)}%</span></div></td>
-    <td>${uStatus(x.util)}</td></tr>`).join('');
-  $('team-bars').innerHTML = d.map(x=>`<div class="bar-row"><div class="bar-name">${x.mem}</div><div class="bar-track"><div class="bar-fill ${barFill(x.util)}" style="width:${x.util.toFixed(0)}%"></div></div><div class="bar-val">${x.util.toFixed(0)}%</div></div>`).join('');
- 
-  $('inv-tot').textContent  = m(totRev);
-  $('inv-paid').textContent = m(paid.reduce((s,x)=>s+x.rev,0));
-  $('inv-pend').textContent = m(unp.reduce((s,x)=>s+x.rev,0));
-  $('inv-ovd').textContent  = ovd.length;
-  $('inv-tbody').innerHTML  = d.map(x=>{
-    const isO=x.ovd&&x.days>0;
-    return`<tr><td class="td-s">${x.c}</td><td class="td-m">${m(x.rev)}</td><td>${x.mem}</td><td>${x.due}</td>
-    <td class="${isO?'td-r':''} td-m">${x.days>0?x.days+' days':'—'}</td>
-    <td>${isO?`<span class="badge b-overdue">Overdue</span>`:pB(x.pay)}</td>
-    <td><button class="act-btn ${isO?'act-fire':'act-follow'}">${isO?'Follow Up':'View'}</button></td></tr>`;
-  }).join('');
- 
-  $('cf-in').textContent  = m(paid.reduce((s,x)=>s+x.rev,0));
-  $('cf-out').textContent = m(totCost);
-  $('cf-net').textContent = m(totPrf);
-  $('cf-bars').innerHTML  = d.map(x=>`<div class="bar-row"><div class="bar-name">${x.c}</div><div class="bar-track"><div class="bar-fill bf-green" style="width:${(x.prf/totPrf*100).toFixed(1)}%"></div></div><div class="bar-val">${m(x.prf)}</div></div>`).join('');
- 
-  const weeks=['Week 2','Week 3','Week 4'];
-  const clients=[...new Set(DATA.map(x=>x.c))];
-  $('trend-table-wrap').innerHTML=`<table><thead><tr><th>Client</th>${weeks.map(w=>`<th>${w}</th>`).join('')}<th>Trend</th></tr></thead><tbody>${
-    clients.map(c=>{
-      const vals=weeks.map(w=>{const r=DATA.find(x=>x.c===c&&x.wk===w);return r?r.mgn:null;});
-      const trend=vals[2]&&vals[0]?vals[2]-vals[0]:0;
-      return`<tr><td class="td-s">${c}</td>${vals.map(v=>v!==null?`<td class="td-g td-m">${v.toFixed(1)}%</td>`:`<td class="td-a">—</td>`).join('')}<td class="${trend>=0?'td-g':'td-r'}">${trend>=0?'↑':'↓'} ${Math.abs(trend).toFixed(1)}pp</td></tr>`;
-    }).join('')
-  }</tbody></table>`;
-  $('trend-bars').innerHTML = d.map(x=>`<div class="bar-row"><div class="bar-name">${x.c}</div><div class="bar-track"><div class="bar-fill bf-blue" style="width:${Math.min(x.mgn,100).toFixed(1)}%"></div></div><div class="bar-val">${x.mgn.toFixed(1)}%</div></div>`).join('');
- 
-  const crits=ovd.map(x=>`<div class="alert-item"><div class="alert-dot ad-r"></div><div class="alert-text"><strong>${x.c}</strong> — invoice overdue by <strong style="color:var(--red)">${x.days} days</strong> (due ${x.due}). Assigned to ${x.mem}.</div></div>`);
-  const warns=d.filter(x=>x.util<30).map(x=>`<div class="alert-item"><div class="alert-dot ad-a"></div><div class="alert-text"><strong>${x.mem}</strong> underutilized at <strong style="color:var(--amber)">${x.util.toFixed(0)}%</strong> (${x.hrs}h / ${x.cap}h). Consider reallocating.</div></div>`);
-  const oks=d.filter(x=>!x.ovd&&x.util>=40).map(x=>`<div class="alert-item"><div class="alert-dot ad-g"></div><div class="alert-text"><strong>${x.c}</strong> — ${x.mem} at <strong style="color:var(--green)">${x.util.toFixed(0)}%</strong> utilization. Invoice ${x.pay.toLowerCase()==='paid'?'paid ✓':'pending'}.</div></div>`);
-  $('alert-critical').innerHTML=crits.join('')||`<div style="color:var(--t3);font-size:12px;padding:8px 0">No critical alerts ✓</div>`;
-  $('alert-warn').innerHTML=warns.join('')||`<div style="color:var(--t3);font-size:12px;padding:8px 0">No warnings ✓</div>`;
-  $('alert-ok').innerHTML=oks.join('')||`<div style="color:var(--t3);font-size:12px;padding:8px 0">Nothing to report</div>`;
+renderBk('stock-bk',[{n:'Raw Material',v:3140,c:'amber'},{n:'Work in Process',v:720,c:'cyan'},{n:'Finished Goods',v:3870,c:'blue'},{n:'Stores & Spares',v:410,c:'red'}]);
+renderBk('payables-bk',[{n:'Local Creditors',v:920,c:'red'},{n:'Contract Liabilities',v:355,c:'amber'},{n:'Foreign Creditors',v:310,c:'blue'},{n:'Accrued Expenses',v:197,c:'cyan'}]);
+renderBk('tax-bk',[{n:'Advance Income Tax',v:218,c:'amber'},{n:'Advances to Suppliers',v:196,c:'cyan'},{n:'Sales Tax Receivable',v:158,c:'blue'},{n:'Prepaid Expenses',v:62,c:'green'}]);
+renderBk('borrowings-bk',[{n:'Mr. Chen Wei',v:1040,c:'red'},{n:'Mr. Li Guangwei',v:940,c:'amber'},{n:'Horizon Industries (Pvt) Ltd',v:630,c:'blue'}]);
+renderBk('ppe-bk',[{n:'PP&E (Net)',v:442,c:'blue'},{n:'LT Security Deposits',v:26,c:'cyan'}]);
+
+// ══════════════════════════════════════════════════
+// TABLE RENDERERS
+// ══════════════════════════════════════════════════
+function fmt(n){return Math.abs(n)>=1e6?(n/1e6).toFixed(1)+'M':Math.abs(n)>=1e3?(n/1e3).toFixed(0)+'K':n.toLocaleString();}
+function fmtPKR(n){return 'Rs.'+Math.round(n).toLocaleString();}
+
+// Revenue ranked table
+const revTbody = document.getElementById('rev-tbody');
+revRanked.forEach(r=>{
+  revTbody.innerHTML += `<tr>
+    <td>${r[0]}</td><td>${r[1]}</td>
+    <td class="num">${fmtPKR(r[2])}</td>
+    <td class="num">${r[3].toFixed(2)}%</td>
+    <td class="num">${(revRanked.slice(0,r[0]).reduce((a,x)=>a+x[3],0)).toFixed(1)}%</td>
+  </tr>`;
+});
+
+// Outstanding table
+const outTbody = document.getElementById('out-tbody');
+outstandingData.forEach((r,i)=>{
+  const riskCls = r[6]==='HIGH'?'high':r[6]==='MEDIUM'?'medium':'low';
+  outTbody.innerHTML += `<tr>
+    <td>${i+1}</td><td>${r[1]}</td>
+    <td class="num">${fmtPKR(r[2])}</td>
+    <td class="num">${fmtPKR(r[3])}</td>
+    <td class="num">${r[4]>0?fmtPKR(r[4]):'—'}</td>
+    <td class="num">${r[5]>0?r[5]+' d':'—'}</td>
+    <td><span class="pill ${riskCls}">${r[6]}</span></td>
+  </tr>`;
+});
+
+// Collection table
+const collTbody = document.getElementById('coll-tbody');
+collectionData.forEach(r=>{
+  const stCls = r[5]==='POOR'?'poor':r[5]==='WATCH'?'watch':'good';
+  collTbody.innerHTML += `<tr>
+    <td>${r[0]}</td><td>${r[1]}</td>
+    <td class="num">${fmtPKR(r[2])}</td>
+    <td class="num">${fmtPKR(r[3])}</td>
+    <td class="num">${r[4].toFixed(1)}%</td>
+    <td><span class="pill ${stCls}">${r[5]}</span></td>
+  </tr>`;
+});
+
+// Margin table
+const marginTbody = document.getElementById('margin-tbody');
+marginData.forEach(r=>{
+  marginTbody.innerHTML += `<tr>
+    <td>${r.rank}</td><td>${r.name}</td>
+    <td class="num">${fmtPKR(r.rev)}</td>
+    <td class="num">${fmtPKR(r.cogs)}</td>
+    <td class="num">${fmtPKR(r.gp)}</td>
+    <td class="num">10.02%</td>
+  </tr>`;
+});
+
+// Top10 / Bottom10 tables
+const top10Tbody = document.getElementById('top10-tbody');
+top10.forEach(r=>{
+  top10Tbody.innerHTML += `<tr>
+    <td>${r.rank}</td><td>${r.name}</td>
+    <td class="num">${fmtPKR(r.rev)}</td>
+    <td class="num">${r.ar>0?fmtPKR(r.ar):'—'}</td>
+    <td class="num">${r.eff.toFixed(1)}%</td>
+  </tr>`;
+});
+const bot10Tbody = document.getElementById('bot10-tbody');
+bot10.forEach(r=>{
+  bot10Tbody.innerHTML += `<tr>
+    <td>${r.rank}</td><td>${r.name}</td>
+    <td class="num">${fmtPKR(r.rev)}</td>
+    <td class="num">${r.ar>0?fmtPKR(r.ar):'—'}</td>
+    <td class="num">${r.eff>0?r.eff.toFixed(1)+'%':'—'}</td>
+  </tr>`;
+});
+
+// Overdue alert cards
+function buildAlertCards(containerId, data){
+  const c = document.getElementById(containerId);
+  if(!c)return;
+  data.forEach(d=>{
+    const effColor = d.eff<50?'var(--red)':d.eff<80?'var(--amber)':'var(--green)';
+    c.innerHTML += `<div class="alert-card ${d.level.toLowerCase()}">
+      <div class="alert-name">${d.name}</div>
+      <div class="alert-meta">
+        <div class="alert-item">AR: <span>Rs.${fmt(d.ar)}</span></div>
+        <div class="alert-item">DSO: <span>${d.dso} days</span></div>
+        <div class="alert-item">Eff: <span style="color:${effColor}">${d.eff.toFixed(0)}%</span></div>
+      </div>
+      <div class="prog-wrap"><div class="prog-bar" style="width:${Math.min(d.eff,100)}%;background:${effColor}"></div></div>
+    </div>`;
+  });
 }
- 
-function goTo(id,el,title){
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('sec-'+id).classList.add('active');
-  el.classList.add('active');
-  $('page-heading').textContent=title;
+buildAlertCards('high-alerts', overdueData.filter(d=>d.level==='HIGH'));
+buildAlertCards('medium-alerts', overdueData.filter(d=>d.level==='MEDIUM'));
+buildAlertCards('low-alerts', overdueData.filter(d=>d.level==='LOW'));
+
+// ══════════════════════════════════════════════════
+// TABLE SEARCH FILTER
+// ══════════════════════════════════════════════════
+function filterTable(tableId, query, col){
+  const tbl = document.getElementById(tableId);
+  if(!tbl)return;
+  const rows = tbl.querySelectorAll('tbody tr');
+  const q = query.toLowerCase();
+  rows.forEach(r=>{
+    const cells = r.querySelectorAll('td');
+    const match = !q || (cells[col] && cells[col].textContent.toLowerCase().includes(q));
+    r.style.display = match?'':'none';
+  });
 }
- 
-function setWeek(w,el){
-  W=w;
-  document.querySelectorAll('.wtab').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  render();
+
+// ══════════════════════════════════════════════════
+// TAB SWITCH
+// ══════════════════════════════════════════════════
+const tabMeta = {
+  overview:{title:'Executive Summary',sub:'Overview · FY2025'},
+  pl:{title:'Profit & Loss Statement',sub:'Income Statement · FY2025'},
+  stock:{title:'Stock in Trade',sub:'Inventory Breakdown'},
+  payables:{title:'Trade & Other Payables',sub:'Creditors Breakdown'},
+  tax:{title:'Tax & Advance Receivables',sub:'Tax Position'},
+  borrowings:{title:'Short-Term Borrowings',sub:'Lender Breakdown'},
+  fixedassets:{title:'Fixed Assets',sub:'PP&E Schedule'},
+  cash:{title:'Cash & Bank Accounts',sub:'Bank Positions'},
+  ratios:{title:'Financial Ratios',sub:'Liquidity · Profitability · Leverage'},
+  yoy:{title:'Year-on-Year Comparison',sub:'FY2023 · FY2024 · FY2025'},
+  'rev-ranked':{title:'Revenue Ranked',sub:'Client Analytics · 65 Clients'},
+  outstanding:{title:'Outstanding AR & DSO',sub:'Client Analytics · Per Client'},
+  collection:{title:'Collection Efficiency',sub:'Client Analytics · Collection %'},
+  overdue:{title:'Overdue Alerts',sub:'Client Analytics · Action Required'},
+  margin:{title:'Margin per Client',sub:'Client Analytics · Est. Gross Margin'},
+  top10:{title:'Top 10 / Bottom 10',sub:'Client Analytics · Revenue Ranking'}
+};
+
+function switchTab(id, el){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn,.nav-item').forEach(b=>b.classList.remove('active'));
+  const panel = document.getElementById('tab-'+id);
+  if(panel) panel.classList.add('active');
+  document.querySelectorAll(`[data-tab="${id}"]`).forEach(b=>b.classList.add('active'));
+  if(el) el.classList.add('active');
+  const m = tabMeta[id]||{};
+  document.getElementById('tb-title').textContent = m.title||id;
+  document.getElementById('tb-sub').textContent = m.sub||'';
 }
- 
-// Start — fetch sheet, then refresh every 60s
-fetchSheet();
-setInterval(fetchSheet, 60000);
+
+// ══════════════════════════════════════════════════
+// CLOCK
+// ══════════════════════════════════════════════════
+function tick(){
+  const n=new Date();
+  document.getElementById('upd-time').textContent=n.toLocaleTimeString();
+  document.getElementById('tb-date').textContent=n.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+}
+tick(); setInterval(tick,30000);
+
+function refreshData(){
+  const b=document.querySelector('.tb-btn');
+  b.textContent='↻ Refreshing…';b.disabled=true;
+  setTimeout(()=>{b.textContent='↻ Refresh';b.disabled=false;tick();},1200);
+}
 </script>
 </body>
 </html>
